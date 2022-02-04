@@ -7,7 +7,7 @@ from utility import ensure
 
 class Job:
     def __init__(self, *, script_file: str, memory: str, account: str, partition: str, max_run_time: str,
-                 qos = None, n_nodes: int, n_threads: int, name, previous_step = None, next_step = None):
+                 qos = None, n_nodes: int, n_threads: int, name, skip_file_check = False, previous_step = None, next_step = None):
         self.script_file = script_file
         self.memory = memory
         self.account = account
@@ -20,14 +20,24 @@ class Job:
         self.id: Optional[int] = None
         self.status = JobStatus.PENDING
         self.pipeline_step: Optional[int] = None
+        self.skip_file_check = skip_file_check
         self.previous_step: Optional[Job] = previous_step
         self.next_step: Optional[Job] = next_step
+
+        if self.previous_step is not None:
+            self.previous_step.next_step = self
+
+        if self.next_step is not None:
+            self.next_step.previous_step = self
+
         self._check_parameters()
 
 
     def _check_parameters(self):
-        ensure(os.path.exists(self.script_file), f'the script file does not exist: "{self.script_file}"')
-        ensure(os.path.isfile(self.script_file), f'the provided script is not a file: "{self.script_file}"')
+        if not self.skip_file_check:
+            ensure(os.path.exists(self.script_file), f'the script file does not exist: "{self.script_file}"')
+            ensure(os.path.isfile(self.script_file), f'the provided script is not a file: "{self.script_file}"')
+
         ensure(self.memory[:-1].isnumeric(), f'the memory value "{self.memory}" does not start with a number')
         ensure(self.memory[-1] in ('K', 'M', 'G', 'T', 'KB', 'MB', 'GB', 'TB') or self.memory[-1].isnumeric(),
                f'the memory value "{self.memory}" does not end with a valid suffix (K|M|G|T)')
@@ -43,9 +53,10 @@ class Job:
         job_name = '' if self.name is None else f'--job-name "{self.name}"'
         qos = '' if self.qos is None else f'--qos {self.qos}'
 
-        cmd = f'sbatch --account {self.account} --comment "Autorun by Genetic Pipeline" {dependency} --error "./%j-err.txt" {job_name} \
-                --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} --output "./%j-out.txt" \
-                --partition {self.partition} {qos} --time "{self.max_run_time}" {self.script_file}'.replace('                 ', ' ').replace('  ', ' ')
+        cmd = f'sbatch --account {self.account} --comment "Autorun by Genomic Pipeline: https://github.com/ManuelArcieri/GenomicPipeline" \
+                {dependency} --error "./%j-err.txt" {job_name} --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} \
+                --output "./%j-out.txt" --partition {self.partition} {qos} --time "{self.max_run_time}" {self.script_file}' \
+            .replace('                 ', ' ').replace('  ', ' ')
 
         process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
 
