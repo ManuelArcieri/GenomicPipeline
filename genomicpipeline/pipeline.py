@@ -1,12 +1,14 @@
+import json
+import subprocess
 from datetime import datetime, timezone
-from job import Job
+from job import Job, JobStatus
 from tomlkit import load, document, item, aot, comment, nl, table, dump
-from typing import Optional, Iterable
+from typing import Optional, Collection
 from utility import ensure, get_or_raise
 
 
 class Pipeline:
-    def __init__(self, name: str, jobs: Iterable[Job]):
+    def __init__(self, name: str, jobs: Collection[Job]):
         self.name = name
         self.jobs_per_step: dict[int, list[Job]] = {}
         self.step_per_job: dict[Job, int] = {}
@@ -16,46 +18,85 @@ class Pipeline:
         self._build_pipeline(jobs)
 
 
-    def _build_pipeline(self, jobs: Iterable[Job]):
-        is_running = True
-        while is_running:
-            is_running = False
+    def _build_pipeline(self, jobs: Collection[Job]):
+        while len(self.step_per_job) < len(jobs):
             for job in jobs:
                 if job.pipeline_step is None:
                     if job.previous_step is None:
                         step = 0
+                        job.pipeline_step = step
                     elif job.previous_step.pipeline_step is None:
                         continue
                     else:
                         step = job.previous_step.pipeline_step + 1
+                        job.pipeline_step = step
+                else:
+                    step = job.pipeline_step
 
-                    job.pipeline_step = step
-                    self.step_per_job[job] = step
-                    temp = self.jobs_per_step.get(step, [])
+                self.step_per_job[job] = step
+                temp = self.jobs_per_step.get(step, [])
+                if job not in temp:
                     temp.append(job)
                     self.jobs_per_step[step] = temp
-                    self.size = max(self.size, step + 1)
-                    is_running = True
+                self.size = max(self.size, step + 1)
 
         ensure(all(map(lambda j: True if j.pipeline_step is not None else False, jobs)),
                'some jobs of the pipeline were not queued for execution', AssertionError)
 
 
     def run_entire_pipeline(self):
-        if self.step is not None:
-            raise RuntimeError("you cannot run an already executed pipeline")
-
-        for _ in range(self.size):
+        start = 0 if self.step is None else self.step + 1
+        for _ in range(start, self.size):
             self.run_next_step()
 
 
     def run_next_step(self):
         if self.step is not None and self.step == self.size - 1:
-            raise RuntimeError("all steps of the pipeline were already executed")
+            print("All steps of the pipeline were already executed")
+            exit()
 
         self.step = 0 if self.step is None else self.step + 1
         for job in self.jobs_per_step[self.step]:
             job.run()
+
+
+    def update_jobs_status(self):
+        queued_jobs = {j.id: j for j in self.step_per_job.keys() if j.id is not None}
+        if len(queued_jobs) <= 0:
+            return
+
+        ids = ','.join([str(i.id) for i in queued_jobs.values()])
+        cmd = f'sacct -j {ids} --json'
+        process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
+
+        out, err = process.communicate()
+        ensure(process.returncode == 0, f'sacct exited with error code {process.returncode}.\n\n'
+                                        f'cmd = {cmd}\n\n'
+                                        f'stderr = {err}\n\n'
+                                        f'stdout = {out}\n\n')
+
+        data = json.loads(out)
+        for job_data in data['jobs']:
+            job_id = job_data['job_id']
+            status = JobStatus(job_data['state']['current'])
+            reason = job_data['state']['reason']
+            reason = reason if reason != 'None' else None
+
+            job = queued_jobs[job_id]
+            job.status = status
+            job.reason = reason
+
+
+    def print_jobs_table(self):
+        print(f'[{self.name}] Step {(self.step if self.step is not None else 0) + 1}/{self.size}')
+        print('|\n|')
+
+        for step in range(self.size):
+            print(f'(Step {step + 1})\n|')
+            for job in self.jobs_per_step[step]:
+                print(f'+---- [{job.status.value}{(": " + job.reason) if job.reason is not None else ""}] {job.get_pretty_name()} - ')
+            if step != self.size - 1:
+                print('|\n|')
 
 
     def save_to_toml_file(self, path: str):
@@ -104,8 +145,12 @@ class Pipeline:
         for job in jobs_obj:
             if job.previous_step_uuid is not None and job.previous_step_uuid != '':
                 job.previous_step = get_or_raise(uuid_per_job, job.previous_step_uuid)
+                job.previous_step.next_step = job
+                job.previous_step.next_step_uuid = job.uuid
             if job.next_step_uuid is not None and job.next_step_uuid != '':
-                job.next_step_uuid = get_or_raise(uuid_per_job, job.next_step_uuid)
+                job.next_step = get_or_raise(uuid_per_job, job.next_step_uuid)
+                job.next_step.previous_step = job
+                job.next_step.previous_step_uuid = job.uuid
 
         pipeline_obj = Pipeline(name, jobs_obj)
         step = pipeline.get('step', None)

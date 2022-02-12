@@ -1,6 +1,6 @@
 import os.path
 import subprocess
-from enum import Enum, auto
+from enum import Enum
 from typing import Optional
 from utility import ensure, get_or_raise
 
@@ -19,6 +19,7 @@ class Job:
         self.n_threads = n_threads
         self.name: Optional[str] = name if name != '' and name is not None else None
         self.id: Optional[int] = None
+        self.reason: Optional[str] = None
         self.status = JobStatus.PENDING
         self.pipeline_step: Optional[int] = None
         self.skip_file_check = skip_file_check
@@ -30,10 +31,12 @@ class Job:
         if self.previous_step is not None:
             self.previous_step_uuid = self.previous_step.uuid
             self.previous_step.next_step = self
+            self.previous_step.next_step_uuid = self.uuid
 
         if self.next_step is not None:
             self.next_step_uuid = self.next_step.uuid
             self.next_step.previous_step = self
+            self.next_step.previous_step_uuid = self.uuid
 
         self._check_parameters()
 
@@ -72,17 +75,25 @@ class Job:
                                         f'stdout = {out}\n\n')
 
         self.id = int(out.strip().split(' ')[-1])  # E.g. "Submitted batch job 1234"
-        self.status = JobStatus.RUNNING
+        self.status = JobStatus.PENDING
+
+
+    def get_pretty_name(self) -> str:
+        if self.name is not None:
+            return self.name
+        return os.path.basename(self.script_file)
 
 
     def __dict__(self) -> dict:
         job = {}
         if self.name is not None and self.name != '':
             job['name'] = self.name
+        job['uuid'] = self.uuid
         if self.id is not None:
             job['id'] = self.id
-        job['uuid'] = self.uuid
         job['status'] = self.status.name
+        if self.reason is not None and self.reason != '':
+            job['reason'] = self.reason
         job['script_file'] = self.script_file
         job['n_nodes'] = self.n_nodes
         job['n_threads'] = self.n_threads
@@ -119,14 +130,27 @@ class Job:
 
         job.id = values.get('id', None)
         job.status = JobStatus(get_or_raise(values, 'status'))
+        job.reason = values.get('reason', None)
         job.pipeline_step = values.get('pipeline_step', None)
         job.previous_step_uuid = values.get('previous_step_uuid', None)
         job.next_step_uuid = values.get('next_step_uuid', None)
         return job
 
 
+# From: https://slurm.schedmd.com/sacct.html#SECTION_JOB-STATE-CODES
 class JobStatus(Enum):
-    PENDING = 'PENDING'
-    RUNNING = 'RUNNING'
-    ERRORED = 'ERRORED'
-    COMPLETED = 'COMPLETED'
+    BOOT_FAIL = 'BOOT_FAIL'  # Job terminated due to launch failure, typically due to a hardware failure (e.g. unable to boot the node or block and the job can not be requeued).
+    CANCELLED = 'CANCELLED'  # Job was explicitly cancelled by the user or system administrator. The job may or may not have been initiated.
+    COMPLETED = 'COMPLETED'  # Job has terminated all processes on all nodes with an exit code of zero.
+    DEADLINE = 'DEADLINE'  # Job terminated on deadline.
+    FAILED = 'FAILED'  # Job terminated with non-zero exit code or other failure condition.
+    NODE_FAIL = 'NODE_FAIL'  # Job terminated due to failure of one or more allocated nodes.
+    OUT_OF_MEMORY = 'OUT_OF_MEMORY'  # Job experienced out of memory error.
+    PENDING = 'PENDING'  # Job is awaiting resource allocation.
+    PREEMPTED = 'PREEMPTED'  # Job terminated due to preemption.
+    RUNNING = 'RUNNING'  # Job currently has an allocation.
+    REQUEUED = 'REQUEUED'  # Job was requeued.
+    RESIZING = 'RESIZING'  # Job is about to change size.
+    REVOKED = 'REVOKED'  # Sibling was removed from cluster due to other cluster starting the job.
+    SUSPENDED = 'SUSPENDED'  # Job has an allocation, but execution has been suspended and CPUs have been released for other jobs.
+    TIMEOUT = 'TIMEOUT'  # Job terminated upon reaching its time limit.
