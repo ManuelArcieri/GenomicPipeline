@@ -32,8 +32,9 @@ def main():
     elif len(argv) == 3 and argv[1] == 'status':  # ./gp.sh status pipeline.toml
         if os.path.isfile(argv[2]):
             pipeline = Pipeline.load_from_toml_file(argv[2])
-            # ...
+            pipeline.update_jobs_status()
             pipeline.save_to_toml_file(argv[2])
+            pipeline.print_jobs_table()
         else:
             print(f'The provided file does not exist: {argv[2]}', file = stderr)
             exit(2)

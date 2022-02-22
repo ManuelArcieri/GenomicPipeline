@@ -7,17 +7,19 @@ from utility import ensure, get_or_raise
 
 class Job:
     def __init__(self, *, uuid: str, script_file: str, memory: str, account: str, partition: str, max_run_time: str,
-                 qos = None, n_nodes: int, n_threads: int, name, skip_file_check = False, previous_step = None, next_step = None):
+                 qos = None, n_nodes: int, n_threads: int, name, environment_variables = None, skip_file_check = False, previous_step = None, next_step = None):
         self.uuid = uuid
         self.script_file = script_file
         self.memory = memory
         self.account = account
         self.partition = partition
         self.max_run_time = max_run_time
+        self.current_run_time: Optional[str] = None
         self.qos: Optional[str] = qos if qos != '' and qos is not None else None
         self.n_nodes = n_nodes
         self.n_threads = n_threads
         self.name: Optional[str] = name if name != '' and name is not None else None
+        self.environment_variables: Optional[str] = environment_variables if environment_variables != '' and environment_variables is not None else None
         self.id: Optional[int] = None
         self.reason: Optional[str] = None
         self.status = JobStatus.PENDING
@@ -59,10 +61,11 @@ class Job:
     def run(self):
         dependency = '' if self.previous_step is None else f'--dependency afterok:{self.previous_step.id}'
         job_name = '' if self.name is None else f'--job-name "{self.name}"'
+        export = '--export ALL' if self.environment_variables is None else f'--export ALL,{self.environment_variables}'
         qos = '' if self.qos is None else f'--qos {self.qos}'
 
         cmd = f'sbatch --account {self.account} --comment "Automatically queued by Genomic Pipeline: https://github.com/ManuelArcieri/GenomicPipeline" \
-                {dependency} --error "./%j-err.txt" {job_name} --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} \
+                {dependency} --error "./%j-err.txt" {export} {job_name} --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} \
                 --output "./%j-out.txt" --partition {self.partition} {qos} --time "{self.max_run_time}" {self.script_file}' \
             .replace('                 ', ' ').replace('  ', ' ')
 
@@ -103,6 +106,8 @@ class Job:
         if self.qos is not None and self.qos != '':
             job['qos'] = self.qos
         job['max_run_time'] = self.max_run_time
+        if self.environment_variables is not None and self.environment_variables != '':
+            job['environment_variables'] = self.environment_variables
         if self.pipeline_step is not None:
             job['pipeline_step'] = self.pipeline_step
         if self.skip_file_check:
@@ -126,6 +131,7 @@ class Job:
                   n_nodes = get_or_raise(values, 'n_nodes'),
                   n_threads = get_or_raise(values, 'n_threads'),
                   name = values.get('name', None),
+                  environment_variables = values.get('environment_variables', None),
                   skip_file_check = values.get('skip_file_check', False))
 
         job.id = values.get('id', None)

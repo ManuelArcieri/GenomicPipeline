@@ -1,3 +1,6 @@
+import time
+
+
 def ensure(expression: bool, error_message: str, exception_type = ValueError):
     if not expression:
         raise exception_type(error_message)
@@ -8,3 +11,16 @@ def get_or_raise(document: dict, key: str):
         return document[key]
     except:
         raise KeyError(f'the TOML file does not contain the key {key}')
+
+
+def get_user_friendly_time(since: int, until = None) -> str:
+    if until is None:
+        until = int(time.time())
+    elapsed = until - since
+
+    if elapsed < 60:  # < 60 seconds
+        return f'{elapsed} seconds'
+    elif elapsed < 60 * 60:  # < 1 hour
+        return f'{elapsed // 60} minute(s) and {elapsed % 60} second(s)'
+    else:  # >= 1 hour
+        return f'{elapsed // 3600} hour(s), {elapsed % 3600 // 60} minute(s), and {elapsed % 3600 % 60} second(s)'

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from job import Job, JobStatus
 from tomlkit import load, document, item, aot, comment, nl, table, dump
 from typing import Optional, Collection
-from utility import ensure, get_or_raise
+from utility import *
 
 
 class Pipeline:
@@ -85,18 +85,22 @@ class Pipeline:
             job = queued_jobs[job_id]
             job.status = status
             job.reason = reason
+            job.current_run_time = get_user_friendly_time(int(job_data['time']['start']), int(job_data['time'].get('end', None)))
 
 
     def print_jobs_table(self):
         print(f'[{self.name}] Step {(self.step if self.step is not None else 0) + 1}/{self.size}')
-        print('|\n|')
 
         for step in range(self.size):
-            print(f'(Step {step + 1})\n|')
+            print('|\n|')
+            print(f'(Step {step + 1})')
             for job in self.jobs_per_step[step]:
-                print(f'+---- [{job.status.value}{(": " + job.reason) if job.reason is not None else ""}] {job.get_pretty_name()} - ')
-            if step != self.size - 1:
                 print('|\n|')
+                print(f'+---+--- Job: {job.get_pretty_name()} ({job.id if job.id is not None else "-"})')
+                print(f'|   +--- Status: {job.status.value}{(": " + job.reason) if job.reason is not None else ""}')
+                print(f'|   +--- Run time: {job.current_run_time if job.current_run_time is not None else "-"}')
+                print(f'|   +--- Env: {job.environment_variables if job.environment_variables is not None else "-"}')
+                print(f'|   +--- UUID: {job.uuid}')
 
 
     def save_to_toml_file(self, path: str):
