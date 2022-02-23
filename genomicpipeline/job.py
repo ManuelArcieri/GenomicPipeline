@@ -7,7 +7,7 @@ from utility import ensure, get_or_raise
 
 class Job:
     def __init__(self, *, uuid: str, script_file: str, memory: str, account: str, partition: str, max_run_time: str,
-                 qos = None, n_nodes: int, n_threads: int, name, environment_variables = None, skip_file_check = False, previous_step = None, next_step = None):
+                 qos = None, n_nodes: int, n_threads: int, name, environment_variables = None, skip_file_check = False, previous_steps = None):
         self.uuid = uuid
         self.script_file = script_file
         self.memory = memory
@@ -25,20 +25,8 @@ class Job:
         self.status = JobStatus.PENDING
         self.pipeline_step: Optional[int] = None
         self.skip_file_check = skip_file_check
-        self.previous_step: Optional[Job] = previous_step
-        self.previous_step_uuid: Optional[str] = None
-        self.next_step: Optional[Job] = next_step
-        self.next_step_uuid: Optional[str] = None
-
-        if self.previous_step is not None:
-            self.previous_step_uuid = self.previous_step.uuid
-            self.previous_step.next_step = self
-            self.previous_step.next_step_uuid = self.uuid
-
-        if self.next_step is not None:
-            self.next_step_uuid = self.next_step.uuid
-            self.next_step.previous_step = self
-            self.next_step.previous_step_uuid = self.uuid
+        self.previous_steps: dict[str, Job] = previous_steps if previous_steps is not None else {}
+        self.logs_directory = '.'
 
         self._check_parameters()
 
@@ -59,14 +47,16 @@ class Job:
 
 
     def run(self):
-        dependency = '' if self.previous_step is None else f'--dependency afterok:{self.previous_step.id}'
+        previous_ids = [str(i.id) for i in self.previous_steps.values()]
+        dependency = '' if len(previous_ids) == 0 else f'--dependency afterok:{":".join(previous_ids)}'
         job_name = '' if self.name is None else f'--job-name "{self.name}"'
+        logs = os.path.join(self.logs_directory, self.uuid)
         export = '--export ALL' if self.environment_variables is None else f'--export ALL,{self.environment_variables}'
         qos = '' if self.qos is None else f'--qos {self.qos}'
 
         cmd = f'sbatch --account {self.account} --comment "Automatically queued by Genomic Pipeline: https://github.com/ManuelArcieri/GenomicPipeline" \
-                {dependency} --error "./%j-err.txt" {export} {job_name} --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} \
-                --output "./%j-out.txt" --partition {self.partition} {qos} --time "{self.max_run_time}" {self.script_file}' \
+                {dependency} --error "{logs}-err.txt" {export} {job_name} --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} \
+                --output "{logs}-out.txt" --partition {self.partition} {qos} --time "{self.max_run_time}" {self.script_file}' \
             .replace('                 ', ' ').replace('  ', ' ')
 
         process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
@@ -112,10 +102,8 @@ class Job:
             job['pipeline_step'] = self.pipeline_step
         if self.skip_file_check:
             job['skip_file_check'] = self.skip_file_check
-        if self.previous_step_uuid is not None and self.previous_step_uuid != '':
-            job['previous_step_uuid'] = self.previous_step_uuid
-        if self.next_step_uuid is not None and self.next_step_uuid != '':
-            job['next_step_uuid'] = self.next_step_uuid
+        if len(self.previous_steps) > 0:
+            job['previous_steps_uuid'] = ','.join(self.previous_steps.keys())
         return job
 
 
@@ -137,9 +125,8 @@ class Job:
         job.id = values.get('id', None)
         job.status = JobStatus(get_or_raise(values, 'status'))
         job.reason = values.get('reason', None)
-        job.pipeline_step = values.get('pipeline_step', None)
-        job.previous_step_uuid = values.get('previous_step_uuid', None)
-        job.next_step_uuid = values.get('next_step_uuid', None)
+        previous_steps_uuid = values.get('previous_steps_uuid', '').split(',')
+        job.previous_steps = {u: None for u in previous_steps_uuid if u != ''}
         return job
 
 

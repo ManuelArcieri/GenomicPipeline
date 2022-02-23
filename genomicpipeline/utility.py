@@ -14,7 +14,9 @@ def get_or_raise(document: dict, key: str):
 
 
 def get_user_friendly_time(since: int, until = None) -> str:
-    if until is None:
+    if since == 0:
+        return '-'
+    if until is None or until <= 0:
         until = int(time.time())
     elapsed = until - since
 

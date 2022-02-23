@@ -14,7 +14,7 @@ def main():
             pipeline = Pipeline.load_from_toml_file(argv[2])
             pipeline.run_entire_pipeline()
             pipeline.save_to_toml_file(argv[2])
-            print('All jobs have been queued.\nRun "./gp.sh status pipeline.toml" to display the current status of the jobs.')
+            print(f'All jobs have been queued.\nType "./gp.sh status {argv[2]}" to display the current status of the jobs.')
         else:
             print(f'The provided file does not exist: {argv[2]}', file = stderr)
             exit(2)
@@ -24,7 +24,7 @@ def main():
             pipeline = Pipeline.load_from_toml_file(argv[2])
             pipeline.run_next_step()
             pipeline.save_to_toml_file(argv[2])
-            print('All jobs of the next step have been queued.\nRun "./gp.sh status pipeline.toml" to display the current status of the jobs.')
+            print(f'All jobs of the next step have been queued.\nType "./gp.sh status {argv[2]}" to display the current status of the jobs.')
         else:
             print(f'The provided file does not exist: {argv[2]}', file = stderr)
             exit(2)
@@ -50,15 +50,26 @@ def print_help():
 
 
 if __name__ == '__main__':
-    printer = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/print.sh', memory = '4G', account = 'ELIX4_castrign2',
-                  partition = 'g100_usr_prod', max_run_time = '4:00:00', n_nodes = 1, n_threads = 1, name = 'Printer', skip_file_check = True)
+    printer1 = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/print.sh', memory = '4G', account = 'ELIX4_castrign2',
+                   partition = 'g100_usr_prod', max_run_time = '4:00:00', n_nodes = 1, n_threads = 1, name = 'Printer', environment_variables = 'FILEN=1',
+                   skip_file_check = True)
+
+    printer2 = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/print.sh', memory = '4G', account = 'ELIX4_castrign2',
+                   partition = 'g100_usr_prod', max_run_time = '4:00:00', n_nodes = 1, n_threads = 1, name = 'Printer', environment_variables = 'FILEN=2',
+                   skip_file_check = True)
+
+    printer3 = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/print.sh', memory = '4G', account = 'ELIX4_castrign2',
+                   partition = 'g100_usr_prod', max_run_time = '4:00:00', n_nodes = 1, n_threads = 1, name = 'Printer', environment_variables = 'FILEN=3',
+                   skip_file_check = True)
 
     reader = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/read.sh', memory = '4G', account = 'ELIX4_castrign2',
-                 partition = 'g100_usr_prod', max_run_time = '0:30:00', n_nodes = 1, n_threads = 1, name = 'Reader', previous_step = printer, skip_file_check = True)
+                 partition = 'g100_usr_prod', max_run_time = '0:30:00', n_nodes = 1, n_threads = 1, name = 'Reader', previous_steps = {printer1.uuid: printer1,
+                                                                                                                                       printer2.uuid: printer2,
+                                                                                                                                       printer3.uuid: printer3},
+                 skip_file_check = True)
 
-    jobs = [reader, printer]
+    jobs = [printer2, reader, printer3, printer1]
 
-    p = Pipeline('Test pipeline', jobs)
+    p = Pipeline('Test pipeline', jobs, '.')
     p.save_to_toml_file('test.toml')
-    p2 = Pipeline.load_from_toml_file('test.toml')
-    main()
+    # main()

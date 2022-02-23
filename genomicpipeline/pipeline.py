@@ -1,4 +1,6 @@
 import json
+import os
+import os.path
 import subprocess
 from datetime import datetime, timezone
 from job import Job, JobStatus
@@ -8,11 +10,14 @@ from utility import *
 
 
 class Pipeline:
-    def __init__(self, name: str, jobs: Collection[Job]):
+    def __init__(self, name: str, jobs: Collection[Job], working_directory: str):
         self.name = name
         self.jobs_per_step: dict[int, list[Job]] = {}
         self.step_per_job: dict[Job, int] = {}
         self.step: Optional[int] = None
+        self.working_directory = working_directory
+        self.logs_directory = os.path.join(working_directory, 'logs')
+        os.makedirs(self.logs_directory, exist_ok = True)
         self.size = 0
 
         self._build_pipeline(jobs)
@@ -21,14 +26,19 @@ class Pipeline:
     def _build_pipeline(self, jobs: Collection[Job]):
         while len(self.step_per_job) < len(jobs):
             for job in jobs:
+                job.logs_directory = self.logs_directory
+
                 if job.pipeline_step is None:
-                    if job.previous_step is None:
+                    if len(job.previous_steps) == 0:
                         step = 0
                         job.pipeline_step = step
-                    elif job.previous_step.pipeline_step is None:
+                    elif any(map(lambda j: True if j.pipeline_step is None else False, job.previous_steps.values())):
                         continue
                     else:
-                        step = job.previous_step.pipeline_step + 1
+                        step = -1
+                        for j in job.previous_steps.values():
+                            step = max(step, j.pipeline_step)
+                        step += 1
                         job.pipeline_step = step
                 else:
                     step = job.pipeline_step
@@ -85,11 +95,11 @@ class Pipeline:
             job = queued_jobs[job_id]
             job.status = status
             job.reason = reason
-            job.current_run_time = get_user_friendly_time(int(job_data['time']['start']), int(job_data['time'].get('end', None)))
+            job.current_run_time = get_user_friendly_time(job_data['time']['start'], job_data['time']['end'])
 
 
     def print_jobs_table(self):
-        print(f'[{self.name}] Step {(self.step if self.step is not None else 0) + 1}/{self.size}')
+        print(f'\n[{self.name}] Step {(self.step if self.step is not None else 0) + 1}/{self.size}')
 
         for step in range(self.size):
             print('|\n|')
@@ -97,10 +107,11 @@ class Pipeline:
             for job in self.jobs_per_step[step]:
                 print('|\n|')
                 print(f'+---+--- Job: {job.get_pretty_name()} ({job.id if job.id is not None else "-"})')
-                print(f'|   +--- Status: {job.status.value}{(": " + job.reason) if job.reason is not None else ""}')
+                print(f'|   +--- Status: {job.status.value}{(" (" + job.reason + ")") if job.reason is not None else ""}')
                 print(f'|   +--- Run time: {job.current_run_time if job.current_run_time is not None else "-"}')
                 print(f'|   +--- Env: {job.environment_variables if job.environment_variables is not None else "-"}')
                 print(f'|   +--- UUID: {job.uuid}')
+        print()
 
 
     def save_to_toml_file(self, path: str):
@@ -147,16 +158,10 @@ class Pipeline:
         uuid_per_job = {j.uuid: j for j in jobs_obj}
 
         for job in jobs_obj:
-            if job.previous_step_uuid is not None and job.previous_step_uuid != '':
-                job.previous_step = get_or_raise(uuid_per_job, job.previous_step_uuid)
-                job.previous_step.next_step = job
-                job.previous_step.next_step_uuid = job.uuid
-            if job.next_step_uuid is not None and job.next_step_uuid != '':
-                job.next_step = get_or_raise(uuid_per_job, job.next_step_uuid)
-                job.next_step.previous_step = job
-                job.next_step.previous_step_uuid = job.uuid
+            for previous_job_uuid in job.previous_steps.keys():
+                job.previous_steps[previous_job_uuid] = get_or_raise(uuid_per_job, previous_job_uuid)
 
-        pipeline_obj = Pipeline(name, jobs_obj)
+        pipeline_obj = Pipeline(name, jobs_obj, '.')
         step = pipeline.get('step', None)
         if step is not None:
             pipeline_obj.step = step
