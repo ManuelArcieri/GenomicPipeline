@@ -44,7 +44,7 @@ def main():
             exit(2)
 
     elif len(argv) == 2 and argv[1] == 'upgrade':  # gep upgrade
-        cmd = 'sh "$HOME"/GenomicPipeline/install.sh'
+        cmd = 'bash "$HOME"/GenomicPipeline/install.sh'
         process = subprocess.Popen(cmd, shell = True)
         process.wait()
 
