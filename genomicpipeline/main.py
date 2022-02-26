@@ -1,7 +1,9 @@
 import os.path
-from sys import argv, stderr
-from pipeline import Pipeline
+import subprocess
+from genomicpipeline import VERSION
 from job import Job
+from pipeline import Pipeline
+from sys import argv, stderr
 from uuid import uuid4
 
 
@@ -9,27 +11,27 @@ def main():
     if len(argv) <= 1 or argv[1].lower() in ('help', '-h', '--help'):
         print_help()
 
-    elif len(argv) == 3 and argv[1] == 'run':  # ./gp.sh run pipeline.toml
+    elif len(argv) == 3 and argv[1] == 'run':  # gep run pipeline.toml
         if os.path.isfile(argv[2]):
             pipeline = Pipeline.load_from_toml_file(argv[2])
             pipeline.run_entire_pipeline()
             pipeline.save_to_toml_file(argv[2])
-            print(f'All jobs have been queued.\nType "./gp.sh status {argv[2]}" to display the current status of the jobs.')
+            print(f'All jobs have been queued.\nType "gep status {argv[2]}" to display the current status of the jobs.')
         else:
             print(f'The provided file does not exist: {argv[2]}', file = stderr)
             exit(2)
 
-    elif len(argv) == 3 and argv[1] == 'step':  # ./gp.sh step pipeline.toml
+    elif len(argv) == 3 and argv[1] == 'step':  # gep step pipeline.toml
         if os.path.isfile(argv[2]):
             pipeline = Pipeline.load_from_toml_file(argv[2])
             pipeline.run_next_step()
             pipeline.save_to_toml_file(argv[2])
-            print(f'All jobs of the next step have been queued.\nType "./gp.sh status {argv[2]}" to display the current status of the jobs.')
+            print(f'All jobs of the next step have been queued.\nType "gep status {argv[2]}" to display the current status of the jobs.')
         else:
             print(f'The provided file does not exist: {argv[2]}', file = stderr)
             exit(2)
 
-    elif len(argv) == 3 and argv[1] == 'status':  # ./gp.sh status pipeline.toml
+    elif len(argv) == 3 and argv[1] == 'status':  # gep status pipeline.toml
         if os.path.isfile(argv[2]):
             pipeline = Pipeline.load_from_toml_file(argv[2])
             pipeline.update_jobs_status()
@@ -39,14 +41,19 @@ def main():
             print(f'The provided file does not exist: {argv[2]}', file = stderr)
             exit(2)
 
+    elif len(argv) == 2 and argv[1] == 'upgrade':  # gep upgrade
+        cmd = 'sh "$HOME"/GenomicPipeline/install.sh'
+        process = subprocess.Popen(cmd, shell = True)
+        process.wait()
+
     else:
         print_help()
 
 
 def print_help():
-    print('Genomic Pipeline')
+    print(f'Genomic Pipeline {VERSION}')
     print('https://github.com/ManuelArcieri/GenomicPipeline')
-    print('\nUsage: ./gp.sh <COMMAND>')  # TODO Define commands
+    print('\nUsage: gep <COMMAND>')  # TODO Define commands
 
 
 if __name__ == '__main__':
