@@ -1,10 +1,12 @@
 import os.path
 import subprocess
-from genomicpipeline import VERSION
 from job import Job
 from pipeline import Pipeline
 from sys import argv, stderr
 from uuid import uuid4
+
+
+VERSION = '0.1.1'
 
 
 def main():
@@ -77,6 +79,6 @@ if __name__ == '__main__':
 
     jobs = [printer2, reader, printer3, printer1]
 
-    p = Pipeline('Test pipeline', jobs, '.')
-    p.save_to_toml_file('test.toml')
-    # main()
+    # p = Pipeline('Test pipeline', jobs, '.')
+    # p.save_to_toml_file('test.toml')
+    main()

@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-GEP_HOME=$(realpath "$0")
+gep_folder="$HOME"/GenomicPipeline
 
-source "$GEP_HOME"/env/bin/activate
-python3 "$GEP_HOME"/genomicpipeline/main.py "$@"
+source "$gep_folder"/env/bin/activate
+python3 "$gep_folder"/genomicpipeline/main.py "$@"
 deactivate

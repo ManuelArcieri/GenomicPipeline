@@ -16,6 +16,7 @@ unzip -qq -o "$zip_file" -d "$gep_folder"
 rm --force "$zip_file"
 mv --force "$gep_folder_extracted"/* "$gep_folder"/
 rm --force --recursive --dir "$gep_folder_extracted"
+chmod +x "$gep_folder"/gep.sh "$gep_folder"/install.sh
 
 echo ">>> Creating Python virtual environment..."
 python3 -m venv "$gep_folder"/env
