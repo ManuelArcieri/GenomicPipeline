@@ -2,7 +2,7 @@ import os.path
 import subprocess
 from enum import Enum
 from typing import Optional
-from utility import ensure, get_or_raise
+from utility import ensure, get_or_raise, GEP_FOLDER
 
 
 class Job:
@@ -33,8 +33,7 @@ class Job:
 
     def _check_parameters(self):
         if not self.skip_file_check:
-            ensure(os.path.exists(self.script_file), f'the script file does not exist: "{self.script_file}"')
-            ensure(os.path.isfile(self.script_file), f'the provided script is not a file: "{self.script_file}"')
+            ensure(self._script_file_exists(), f'the script file does not exist: "{self.script_file}"')
 
         ensure(self.memory[:-1].isnumeric(), f'the memory value "{self.memory}" does not start with a number')
         ensure(self.memory[-1] in ('K', 'M', 'G', 'T', 'KB', 'MB', 'GB', 'TB') or self.memory[-1].isnumeric(),
@@ -46,7 +45,26 @@ class Job:
         ensure(self.n_threads > 0, f'the number of threads must be greater than zero (found: {self.n_nodes})')
 
 
+    def _script_file_exists(self) -> bool:
+        if self._get_real_script_file() is not None:
+            return True
+        return False
+
+
+    def _get_real_script_file(self) -> Optional[str]:
+        if os.path.isfile(self.script_file):
+            return self.script_file
+
+        alternative_file = os.path.join(GEP_FOLDER, 'jobs', self.script_file)
+        if os.path.isfile(alternative_file):
+            return alternative_file
+
+        return None
+
+
     def run(self):
+        ensure(self._script_file_exists(), f'the script file does not exist: "{self.script_file}"')
+        script_file = self._get_real_script_file()
         previous_ids = [str(i.id) for i in self.previous_steps.values()]
         dependency = '' if len(previous_ids) == 0 else f'--dependency afterok:{":".join(previous_ids)}'
         job_name = '' if self.name is None else f'--job-name "{self.name}"'
@@ -56,7 +74,7 @@ class Job:
 
         cmd = f'sbatch --account {self.account} --comment "Automatically queued by Genomic Pipeline: https://github.com/ManuelArcieri/GenomicPipeline" \
                 {dependency} --error "{logs}-err.txt" {export} {job_name} --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} \
-                --output "{logs}-out.txt" --partition {self.partition} {qos} --time "{self.max_run_time}" {self.script_file}' \
+                --output "{logs}-out.txt" --partition {self.partition} {qos} --time "{self.max_run_time}" {script_file}' \
             .replace('                 ', ' ').replace('  ', ' ')
 
         process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)

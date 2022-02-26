@@ -1,12 +1,10 @@
 import os.path
 import subprocess
-from job import Job
 from pipeline import Pipeline
 from sys import argv, stderr
-from uuid import uuid4
 
 
-VERSION = '0.1.1'
+VERSION = '0.1.2'
 
 
 def main():
@@ -55,30 +53,16 @@ def main():
 def print_help():
     print(f'Genomic Pipeline {VERSION}')
     print('https://github.com/ManuelArcieri/GenomicPipeline')
-    print('\nUsage: gep <COMMAND>')  # TODO Define commands
+    print('\nUsage:\n')
+    print('• gep run [PIPELINE FILE]')
+    print('      Runs all the steps of the specified pipeline (.toml) file\n')
+    print('• gep step [PIPELINE FILE]')
+    print('      Runs a single step of the specified pipeline (.toml) file\n')
+    print('• gep status [PIPELINE FILE]')
+    print('      Prints the status of all jobs of the specified pipeline (.toml) file\n')
+    print('• gep upgrade')
+    print('      Upgrades Genomic Pipeline to its latest version\n')
 
 
 if __name__ == '__main__':
-    printer1 = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/print.sh', memory = '4G', account = 'ELIX4_castrign2',
-                   partition = 'g100_usr_prod', max_run_time = '4:00:00', n_nodes = 1, n_threads = 1, name = 'Printer', environment_variables = 'FILEN=1',
-                   skip_file_check = True)
-
-    printer2 = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/print.sh', memory = '4G', account = 'ELIX4_castrign2',
-                   partition = 'g100_usr_prod', max_run_time = '4:00:00', n_nodes = 1, n_threads = 1, name = 'Printer', environment_variables = 'FILEN=2',
-                   skip_file_check = True)
-
-    printer3 = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/print.sh', memory = '4G', account = 'ELIX4_castrign2',
-                   partition = 'g100_usr_prod', max_run_time = '4:00:00', n_nodes = 1, n_threads = 1, name = 'Printer', environment_variables = 'FILEN=3',
-                   skip_file_check = True)
-
-    reader = Job(uuid = str(uuid4()), script_file = '/g100/home/userexternal/marcieri/SCRATCH/pipeline/read.sh', memory = '4G', account = 'ELIX4_castrign2',
-                 partition = 'g100_usr_prod', max_run_time = '0:30:00', n_nodes = 1, n_threads = 1, name = 'Reader', previous_steps = {printer1.uuid: printer1,
-                                                                                                                                       printer2.uuid: printer2,
-                                                                                                                                       printer3.uuid: printer3},
-                 skip_file_check = True)
-
-    jobs = [printer2, reader, printer3, printer1]
-
-    # p = Pipeline('Test pipeline', jobs, '.')
-    # p.save_to_toml_file('test.toml')
     main()

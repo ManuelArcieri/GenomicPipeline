@@ -26,7 +26,5 @@ deactivate
 
 echo ">>> Setting 'gep' command..."
 grep --fixed-strings --line-regexp --quiet "alias gep='$gep_folder/gep.sh'" "$HOME"/.bashrc || echo "alias gep='$gep_folder/gep.sh'" >>"$HOME"/.bashrc
-# shellcheck disable=SC2139
-alias gep="$gep_folder"/gep.sh
 
 echo ">>> GenomicPipeline has been successfully installed or updated"
