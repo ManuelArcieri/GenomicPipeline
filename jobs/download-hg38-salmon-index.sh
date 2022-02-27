@@ -10,7 +10,7 @@ set -e
 
 echo "Downloading hg38/salmon_sa_index:default..."
 mkdir --parents "$OUT_DIR"
-wget --tries 5 --timeout 10 --output-document "$OUT_DIR"/index.tar.gz http://refgenomes.databio.org/v3/assets/archive/2230c535660fb4774114bfa966a62f823fdb6d21acf138d4/salmon_sa_index?tag=default
+wget --no-verbose --tries 5 --timeout 10 --output-document "$OUT_DIR"/index.tar.gz http://refgenomes.databio.org/v3/assets/archive/2230c535660fb4774114bfa966a62f823fdb6d21acf138d4/salmon_sa_index?tag=default
 echo "Salmon index downloaded successfully"
 
 echo "Extracting archive..."

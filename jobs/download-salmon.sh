@@ -11,7 +11,7 @@ echo "Downloading Salmon 1.7.0..."
 mkdir --parents "$OUT_DIR"
 rm --force --recursive --dir "$OUT_DIR"
 mkdir --parents "$OUT_DIR"
-wget --tries 5 --timeout 10 --output-document "$OUT_DIR"/salmon.tar.gz https://github.com/COMBINE-lab/salmon/releases/download/v1.7.0/salmon-1.7.0_linux_x86_64.tar.gz
+wget --no-verbose --tries 5 --timeout 10 --output-document "$OUT_DIR"/salmon.tar.gz https://github.com/COMBINE-lab/salmon/releases/download/v1.7.0/salmon-1.7.0_linux_x86_64.tar.gz
 echo "Salmon downloaded successfully"
 
 echo "Extracting archive..."
