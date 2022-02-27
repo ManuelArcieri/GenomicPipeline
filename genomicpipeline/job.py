@@ -69,7 +69,7 @@ class Job:
         previous_ids = [str(i.id) for i in self.previous_steps.values()]
         dependency = '' if len(previous_ids) == 0 else f'--dependency afterok:{":".join(previous_ids)}'
         job_name = '' if self.name is None else f'--job-name "{self.name}"'
-        logs = os.path.join(self.logs_directory, self.uuid)
+        logs = os.path.expandvars(os.path.join(self.logs_directory, self.uuid))
         export = '--export ALL' if self.environment_variables is None else f'--export ALL,{self.environment_variables}'
         qos = '' if self.qos is None else f'--qos {self.qos}'
 
