@@ -15,7 +15,8 @@ echo "Splitting $SRA_FILE"
 
 vdb-config -s /repository/remote/disabled=true
 vdb-config -s /repository/user/cache-disabled=false
-vdb-config -s /repository/user/main/public/root=$SCRATCH/ncbi/public
+vdb-config -s /repository/user/main/public/cache-enabled=true
+vdb-config -s /repository/user/main/public/root="$SCRATCH/ncbi"
 
 fastq-dump --outdir "$OUT_DIR" --split-files "$SRA_FILE"
 
