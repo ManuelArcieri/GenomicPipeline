@@ -4,7 +4,7 @@ from pipeline import Pipeline
 from sys import argv, stderr
 
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 
 def main():
@@ -39,6 +39,17 @@ def main():
             pipeline.print_jobs_table()
         else:
             print(f'The provided file does not exist: {argv[2]}', file = stderr)
+            exit(2)
+
+    elif len(argv) == 4 and argv[1] == 'requeue' and argv[2] == 'failed':  # gep requeue failed pipeline.toml
+        if os.path.isfile(argv[3]):
+            pipeline = Pipeline.load_from_toml_file(argv[3])
+            pipeline.update_jobs_status()
+            pipeline.requeue_failed_jobs()
+            pipeline.update_jobs_status()
+            pipeline.save_to_toml_file(argv[3])
+        else:
+            print(f'The provided file does not exist: {argv[3]}', file = stderr)
             exit(2)
 
     elif len(argv) == 2 and argv[1] == 'upgrade':  # gep upgrade

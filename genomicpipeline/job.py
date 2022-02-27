@@ -1,6 +1,7 @@
 import os.path
 import subprocess
 from enum import Enum
+from sys import stderr
 from typing import Optional
 from utility import ensure, get_or_raise, GEP_FOLDER
 
@@ -72,9 +73,9 @@ class Job:
         export = '--export ALL' if self.environment_variables is None else f'--export ALL,{self.environment_variables}'
         qos = '' if self.qos is None else f'--qos {self.qos}'
 
-        cmd = f'sbatch --account {self.account} --comment "Automatically queued by Genomic Pipeline: https://github.com/ManuelArcieri/GenomicPipeline" \
+        cmd = f'sbatch --account {self.account} --comment "Automatically queued by Genomic Pipeline: https://github.com/ManuelArcieri/GenomicPipeline | UUID: {self.uuid}" \
                 {dependency} --error "{logs}-err.txt" {export} {job_name} --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} \
-                --output "{logs}-out.txt" --partition {self.partition} {qos} --time "{self.max_run_time}" {script_file}' \
+                --output "{logs}-out.txt" --partition {self.partition} {qos} --requeue --time "{self.max_run_time}" {script_file}' \
             .replace('                 ', ' ').replace('  ', ' ')
 
         process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
@@ -87,6 +88,18 @@ class Job:
 
         self.id = int(out.strip().split(' ')[-1])  # E.g. "Submitted batch job 1234"
         self.status = JobStatus.PENDING
+
+
+    def requeue(self):
+        ensure(self.id is not None, 'tried to restart a job with an invalid ID')
+
+        cmd = f'scontrol requeue {self.id}'
+        process = subprocess.Popen(cmd, shell = True)
+
+        if process.wait() == 0:
+            self.status = JobStatus.PENDING
+        else:
+            print(f'Failed to requeue job {self.id} ({self.uuid})', file = stderr)
 
 
     def get_pretty_name(self) -> str:
