@@ -21,6 +21,7 @@ chmod +x "$gep_folder"/gep.sh "$gep_folder"/install.sh
 echo ">>> Creating Python virtual environment..."
 python3 -m venv "$gep_folder"/env
 source "$gep_folder"/env/bin/activate
+python3 -m pip install --upgrade pip
 pip3 install --quiet --upgrade --requirement "$gep_folder"/requirements.txt
 deactivate
 
