@@ -70,6 +70,7 @@ class Job:
         dependency = '' if len(previous_ids) == 0 else f'--dependency afterok:{":".join(previous_ids)}'
         job_name = '' if self.name is None else f'--job-name "{self.name}"'
         logs = os.path.expandvars(os.path.join(self.logs_directory, self.uuid))
+        print(logs)
         export = '--export ALL' if self.environment_variables is None else f'--export ALL,{self.environment_variables}'
         qos = '' if self.qos is None else f'--qos {self.qos}'
 
@@ -77,6 +78,7 @@ class Job:
                 {dependency} --error "{logs}-err.txt" {export} {job_name} --mem {self.memory} --nodes {self.n_nodes} --ntasks {self.n_threads} \
                 --output "{logs}-out.txt" --partition {self.partition} {qos} --requeue --time "{self.max_run_time}" {script_file}' \
             .replace('                 ', ' ').replace('  ', ' ')
+        print(cmd)
 
         process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
 
