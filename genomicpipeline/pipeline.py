@@ -137,6 +137,8 @@ class Pipeline:
         if self.step is not None:
             pipeline.add('step', self.step)
         pipeline.add('size', self.size)
+        pipeline.add('working_directory', self.working_directory)
+        pipeline.add('logs_directory', self.logs_directory)
 
         jobs = aot()
 
@@ -162,6 +164,7 @@ class Pipeline:
 
         pipeline = get_or_raise(root, 'pipeline')
         name = get_or_raise(pipeline, 'name')
+        working_directory = get_or_raise(pipeline, 'working_directory')
 
         raw_jobs = get_or_raise(pipeline, 'jobs')
         jobs_obj = [Job.from_dict(j) for j in raw_jobs]
@@ -171,9 +174,10 @@ class Pipeline:
             for previous_job_uuid in job.previous_steps.keys():
                 job.previous_steps[previous_job_uuid] = get_or_raise(uuid_per_job, previous_job_uuid)
 
-        pipeline_obj = Pipeline(name, jobs_obj, '.')
+        pipeline_obj = Pipeline(name, jobs_obj, working_directory)
         step = pipeline.get('step', None)
         if step is not None:
             pipeline_obj.step = step
         pipeline_obj.size = get_or_raise(pipeline, 'size')
+        pipeline.logs_directory = get_or_raise(pipeline, 'logs_directory')
         return pipeline_obj

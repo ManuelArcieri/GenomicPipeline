@@ -12,5 +12,13 @@ module load profile/bioinf
 module load autoload sra
 
 echo "Splitting $SRA_FILE"
+
+vdb-config -s /repository/remote/disabled=true
+vdb-config -s /repository/user/cache-disabled=false
+vdb-config -s /repository/user/main/public/root=$SCRATCH/ncbi/public
+
 fastq-dump --outdir "$OUT_DIR" --split-files "$SRA_FILE"
+
+vdb-config -s /repository/remote/disabled=false
+
 echo "Sample split successfully"

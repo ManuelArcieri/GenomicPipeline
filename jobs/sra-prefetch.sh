@@ -15,5 +15,10 @@ module load profile/bioinf
 module load autoload sra
 
 echo "Downloading $SAMPLE..."
+
+vdb-config -s /repository/remote/disabled=false
+vdb-config -s /repository/user/cache-disabled=false
+vdb-config -s /repository/user/main/public/root=$SCRATCH/ncbi/public
+
 prefetch "$SAMPLE" --output-file "$OUT_FILE"
 echo "$SAMPLE downloaded successfully"

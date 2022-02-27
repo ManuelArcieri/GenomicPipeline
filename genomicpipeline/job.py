@@ -124,6 +124,7 @@ class Job:
         job['memory'] = self.memory
         job['account'] = self.account
         job['partition'] = self.partition
+        job['logs_directory'] = self.logs_directory
         if self.qos is not None and self.qos != '':
             job['qos'] = self.qos
         job['max_run_time'] = self.max_run_time
@@ -156,6 +157,7 @@ class Job:
         job.id = values.get('id', None)
         job.status = JobStatus(get_or_raise(values, 'status'))
         job.reason = values.get('reason', None)
+        job.logs_directory = values.get('logs_directory', '.')
         previous_steps_uuid = values.get('previous_steps_uuid', '').split(',')
         job.previous_steps = {u: None for u in previous_steps_uuid if u != ''}
         return job
