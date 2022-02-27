@@ -17,7 +17,6 @@ class Pipeline:
         self.step: Optional[int] = None
         self.working_directory = working_directory
         self.logs_directory = os.path.join(working_directory, 'logs')
-        print(self.logs_directory)
         self.size = 0
 
         self._build_pipeline(jobs)
