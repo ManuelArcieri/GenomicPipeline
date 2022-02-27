@@ -1,7 +1,8 @@
+import os.path
 import time
 
 
-GEP_FOLDER = '$HOME/GenomicPipeline'
+GEP_FOLDER = os.path.expandvars('$HOME/GenomicPipeline')
 
 
 def ensure(expression: bool, error_message: str, exception_type = ValueError):

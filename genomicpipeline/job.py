@@ -36,8 +36,8 @@ class Job:
         if not self.skip_file_check:
             ensure(self._script_file_exists(), f'the script file does not exist: "{self.script_file}"')
 
-        ensure(self.memory[:-1].isnumeric(), f'the memory value "{self.memory}" does not start with a number')
-        ensure(self.memory[-1] in ('K', 'M', 'G', 'T', 'KB', 'MB', 'GB', 'TB') or self.memory[-1].isnumeric(),
+        ensure(self.memory[0].isnumeric(), f'the memory value "{self.memory}" does not start with a number')
+        ensure(self.memory[-1] in ('K', 'M', 'G', 'T') or self.memory[-2:] in ('KB', 'MB', 'GB', 'TB') or self.memory[-1].isnumeric(),
                f'the memory value "{self.memory}" does not end with a valid suffix (K|M|G|T)')
         ensure(len(self.account) > 0, 'the account is undefined')
         ensure(len(self.partition) > 0, 'the partition is undefined')
