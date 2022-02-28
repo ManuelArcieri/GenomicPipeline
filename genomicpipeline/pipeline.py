@@ -76,7 +76,7 @@ class Pipeline:
 
         ids = ','.join([str(i.id) for i in queued_jobs.values()])
         cmd = f'sacct -j {ids} --json'
-        process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
+        process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines = True)
 
         out, err = process.communicate()
         ensure(process.returncode == 0, f'sacct exited with error code {process.returncode}.\n\n'

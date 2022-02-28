@@ -80,7 +80,7 @@ class Job:
                 --output "{logs}-out.txt" --partition {self.partition} {qos} --requeue --time "{self.max_run_time}" {script_file}' \
             .replace('                 ', ' ').replace('  ', ' ')
 
-        process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
+        process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines = True)
 
         out, err = process.communicate()
         ensure(process.returncode == 0, f'sbatch exited with error code {process.returncode}.\n\n'
