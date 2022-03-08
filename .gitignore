@@ -131,3 +131,7 @@ dmypy.json
 # IDE and editors
 *.idea/
 *.vscode/
+
+# Svelte
+*/node_modules/
+*.DS_Store

@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Mono&family=Noto+Sans:wght@400;700&display=swap");
+
+:root {
+    --theme-color: #3949AB;
+}
+
+html {
+    font-family: "Noto Sans", sans-serif;
+}
+
+.monospace {
+    font-family: "Noto Sans Mono", monospace;
+}
+
+main {
+    max-width: 70%;
+    margin-top: 3rem;
+    background-color: #F5F5F5;
+    border-radius: 1rem;
+}
+
+.top-logo {
+    height: 5rem;
+}
+
+.top-caption {
+    text-align: center;
+    font-weight: bold;
+    font-size: 2rem;
+    padding: 1rem;
+    color: var(--theme-color);
+}
+
+.margin-left-small {
+    margin-left: 0.5rem;
+}

@@ -1,0 +1,51 @@
+{
+    "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+    "name": "Genomic Pipeline",
+    "short_name": "Genomic Pipeline",
+    "categories": [
+        "education",
+        "medical",
+        "utilities"
+    ],
+    "display": "browser",
+    "background_color": "#3949AB",
+    "description": "Set up, build, and deploy a genomic pipeline using a pre-configured list of scripts",
+    "lang": "en-UK",
+    "icons": [
+        {
+            "src": "img/icon.png",
+            "sizes": "3490x3490",
+            "type": "image/png"
+        },
+        {
+            "src": "img/icon-2048.png",
+            "sizes": "2048x2048",
+            "type": "image/png"
+        },
+        {
+            "src": "img/icon-1024.png",
+            "sizes": "1024x1024",
+            "type": "image/png"
+        },
+        {
+            "src": "img/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "img/icon-256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        },
+        {
+            "src": "img/icon-128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "img/icon-64.png",
+            "sizes": "64x64",
+            "type": "image/png"
+        }
+    ]
+}
