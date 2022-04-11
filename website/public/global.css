@@ -3,6 +3,7 @@
 :root {
     --theme-color: #3949AB;
     --theme-color-transparent: rgba(57, 73, 171, 0.25);
+    --theme-color-transparent-light: rgba(57, 73, 171, 0.09);
     --theme-color-light: #666AD1;
     --theme-color-dark: #001970;
 }
@@ -40,10 +41,22 @@ main .row {
     height: 4rem;
 }
 
+.text-center {
+    text-align: center !important;
+}
+
 .top-caption {
     text-align: center;
     font-weight: bold;
     font-size: 1.5rem;
+    color: var(--theme-color);
+}
+
+.section-caption {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.3rem;
+    margin: 2rem !important;
     color: var(--theme-color);
 }
 
@@ -63,4 +76,54 @@ main .row {
 .form-control:focus {
     border-color: var(--theme-color-light) !important;
     box-shadow: 0 0 0 0.25rem var(--theme-color-transparent) !important;
+}
+
+.accordion-button:focus {
+    border-color: var(--theme-color-light) !important;
+    box-shadow: 0 0 0 0.25rem var(--theme-color-transparent) !important;
+}
+
+.accordion-button:not(.collapsed) {
+    color: var(--theme-color) !important;
+    background-color: var(--theme-color-transparent-light) !important;
+}
+
+.btn-primary:active:focus {
+    border-color: var(--theme-color-light) !important;
+    box-shadow: 0 0 0 0.25rem var(--theme-color-transparent) !important;
+}
+
+.btn-primary:active {
+    background-color: var(--theme-color-light) !important;
+}
+
+.btn-primary:focus {
+    border-color: var(--theme-color-light) !important;
+    background-color: var(--theme-color-light) !important;
+    box-shadow: 0 0 0 0.25rem var(--theme-color-transparent) !important;
+}
+
+.btn-primary:hover {
+    border-color: var(--theme-color-light) !important;
+    background-color: var(--theme-color-light) !important;
+    box-shadow: 0 0 0 0.25rem var(--theme-color-transparent) !important;
+}
+
+.btn-primary {
+    border-color: var(--theme-color-light) !important;
+    background-color: var(--theme-color) !important;
+}
+
+.text-col {
+    font-size: 1.1rem;
+}
+
+.text-col p {
+    margin-top: 1rem !important;
+    margin-bottom: 0.2rem !important;
+}
+
+code {
+    font-size: 1.1rem !important;
+    color: var(--theme-color) !important;
 }

@@ -3,10 +3,17 @@
 # Download the specified Sequence Read Archive (SRA) datafile and store it locally.
 #
 # INPUT:
-# - $SAMPLE: SRA accession (e.g. "SRR390728")
+# - $SAMPLE: SRA accession (e.g. "SRR390728") or file path
 # - $OUT_FILE: file name (e.g. "/some/dir/SRR390728.sra")
 
 set -e
+
+if [ -f "$SAMPLE" ]; then
+    echo "$SAMPLE is a file. Copying..."
+    cp --update "$SAMPLE" "$OUT_FILE"
+    echo "File copied. Exiting..."
+    exit
+fi
 
 module load profile/bioinf
 module load autoload sra
