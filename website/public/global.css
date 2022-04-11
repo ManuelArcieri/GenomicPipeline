@@ -126,4 +126,5 @@ main .row {
 code {
     font-size: 1.1rem !important;
     color: var(--theme-color) !important;
+    font-family: "Noto Sans Mono", monospace !important;
 }
