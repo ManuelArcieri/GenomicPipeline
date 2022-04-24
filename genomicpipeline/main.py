@@ -4,7 +4,7 @@ from pipeline import Pipeline
 from sys import argv, stderr
 
 
-VERSION = '0.1.7'
+VERSION = '0.1.8'
 
 
 def main():
@@ -65,13 +65,13 @@ def print_help():
     print(f'Genomic Pipeline {VERSION}')
     print('https://github.com/ManuelArcieri/GenomicPipeline')
     print('\nUsage:\n')
-    print('• gep run [PIPELINE FILE]')
+    print('- gep run [PIPELINE FILE]')
     print('      Runs all the steps of the specified pipeline (.toml) file\n')
-    print('• gep step [PIPELINE FILE]')
+    print('- gep step [PIPELINE FILE]')
     print('      Runs a single step of the specified pipeline (.toml) file\n')
-    print('• gep status [PIPELINE FILE]')
+    print('- gep status [PIPELINE FILE]')
     print('      Prints the status of all jobs of the specified pipeline (.toml) file\n')
-    print('• gep upgrade')
+    print('- gep upgrade')
     print('      Upgrades Genomic Pipeline to its latest version\n')
 
 
