@@ -26,35 +26,35 @@ for folder, samples in (('carcinoma', carcinoma), ('melanoma', melanoma)):
         bam_dir = f'$SCRATCH/carcinoma-melanoma/{folder}/BAM'
         gtf_dir = f'$SCRATCH/carcinoma-melanoma/{folder}/GTF'
 
-        fastqc_1 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '16GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
-                       n_nodes = 1, n_threads = 1, name = f'fastqc {sample}',
+        fastqc_1 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '32GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
+                       n_nodes = 1, n_threads = 6, name = f'fastqc {sample}',
                        environment_variables = f'SAMPLE={fastq_dir}/{sample}_1.fastq,OUT_DIR={c_dir}/{sample}_1')
 
-        fastqc_2 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '16GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
-                       n_nodes = 1, n_threads = 1, name = f'fastqc {sample}',
+        fastqc_2 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '32GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
+                       n_nodes = 1, n_threads = 6, name = f'fastqc {sample}',
                        environment_variables = f'SAMPLE={fastq_dir}/{sample}_2.fastq,OUT_DIR={c_dir}/{sample}_2')
 
         trimming = Job(uuid = uuid4().hex, script_file = 'trimmomatic.sh', memory = '128GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
                        n_nodes = 1, n_threads = 36, name = f'Trim {sample}',
                        environment_variables = f'MATE_1={fastq_dir}/{sample}_1.fastq,MATE_2={fastq_dir}/{sample}_2.fastq,OUT_MATE_PAIRED_1={trim_dir}/{sample}_1.trimmed.paired.fastq,OUT_MATE_PAIRED_2={trim_dir}/{sample}_2.trimmed.paired.fastq,OUT_MATE_UNPAIRED_1={trim_dir}/{sample}_1.trimmed.unpaired.fastq,OUT_MATE_UNPAIRED_2={trim_dir}/{sample}_2.trimmed.unpaired.fastq')
 
-        fastqc_t1 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '16GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
-                        n_nodes = 1, n_threads = 1, name = f'fastqc trimmed {sample}',
+        fastqc_t1 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '32GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
+                        n_nodes = 1, n_threads = 6, name = f'fastqc trimmed {sample}',
                         environment_variables = f'SAMPLE={trim_dir}/{sample}_1.trimmed.paired.fastq,OUT_DIR={c_dir}/{sample}_1.trimmed.paired.fastq',
                         previous_steps = {trimming.uuid: trimming})
 
-        fastqc_t2 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '16GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
-                        n_nodes = 1, n_threads = 1, name = f'fastqc trimmed {sample}',
+        fastqc_t2 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '32GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
+                        n_nodes = 1, n_threads = 6, name = f'fastqc trimmed {sample}',
                         environment_variables = f'SAMPLE={trim_dir}/{sample}_2.trimmed.paired.fastq,OUT_DIR={c_dir}/{sample}_2.trimmed.paired.fastq',
                         previous_steps = {trimming.uuid: trimming})
 
-        fastqc_t3 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '16GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
-                        n_nodes = 1, n_threads = 1, name = f'fastqc trimmed {sample}',
+        fastqc_t3 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '32GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
+                        n_nodes = 1, n_threads = 6, name = f'fastqc trimmed {sample}',
                         environment_variables = f'SAMPLE={trim_dir}/{sample}_1.trimmed.unpaired.fastq,OUT_DIR={c_dir}/{sample}_1.trimmed.unpaired.fastq',
                         previous_steps = {trimming.uuid: trimming})
 
-        fastqc_t4 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '16GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
-                        n_nodes = 1, n_threads = 1, name = f'fastqc trimmed {sample}',
+        fastqc_t4 = Job(uuid = uuid4().hex, script_file = 'fastqc.sh', memory = '32GB', account = 'ELIX4_palomba', partition = 'g100_usr_prod', max_run_time = '24:00:00',
+                        n_nodes = 1, n_threads = 6, name = f'fastqc trimmed {sample}',
                         environment_variables = f'SAMPLE={trim_dir}/{sample}_2.trimmed.unpaired.fastq,OUT_DIR={c_dir}/{sample}_2.trimmed.unpaired.fastq',
                         previous_steps = {trimming.uuid: trimming})
 

@@ -15,9 +15,13 @@ set -e
 module load autoload profile/bioinf
 module load trimmomatic
 
+dirname "$OUT_MATE_PAIRED_1"
 mkdir --parents "$(dirname "$OUT_MATE_PAIRED_1")"
+dirname "$OUT_MATE_PAIRED_2"
 mkdir --parents "$(dirname "$OUT_MATE_PAIRED_2")"
+dirname "$OUT_MATE_UNPAIRED_1"
 mkdir --parents "$(dirname "$OUT_MATE_UNPAIRED_1")"
+dirname "$OUT_MATE_UNPAIRED_2"
 mkdir --parents "$(dirname "$OUT_MATE_UNPAIRED_2")"
 
 java -jar "$TRIMMOMATIC_HOME"/bin/trimmomatic-0.39.jar PE -threads 36 -phred33 \
