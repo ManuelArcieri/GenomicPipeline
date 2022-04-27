@@ -11,5 +11,5 @@ set -e
 module load autoload profile/bioinf
 module load fastqc
 
-mkdir --parents "$OUT_DIR"
+bash -c "mkdir --parents $OUT_DIR"
 fastqc --outdir "$OUT_DIR" --threads 6 "$SAMPLE"
