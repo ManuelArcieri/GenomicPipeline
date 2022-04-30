@@ -11,6 +11,6 @@ set -e
 module load autoload profile/bioinf
 module load samtools
 
-python3 $"GEP_HOME"/jobs/makedirs.py "$(dirname "$OUT_FILE")"
+mkdir --parents "$(dirname "$OUT_FILE")"
 
 samtools sort -@ 36 -o "$OUT_FILE" "$SAM_FILE"
