@@ -15,10 +15,10 @@ set -e
 module load autoload profile/bioinf
 module load trimmomatic
 
-bash -c "mkdir --parents $(dirname "$OUT_MATE_PAIRED_1")"
-bash -c "mkdir --parents $(dirname "$OUT_MATE_PAIRED_2")"
-bash -c "mkdir --parents $(dirname "$OUT_MATE_UNPAIRED_1")"
-bash -c "mkdir --parents $(dirname "$OUT_MATE_UNPAIRED_2")"
+python3 $"GEP_HOME"/jobs/makedirs.py "$(dirname "$OUT_MATE_PAIRED_1")"
+python3 $"GEP_HOME"/jobs/makedirs.py "$(dirname "$OUT_MATE_PAIRED_2")"
+python3 $"GEP_HOME"/jobs/makedirs.py "$(dirname "$OUT_MATE_UNPAIRED_1")"
+python3 $"GEP_HOME"/jobs/makedirs.py "$(dirname "$OUT_MATE_UNPAIRED_2")"
 
 java -jar "$TRIMMOMATIC_HOME"/bin/trimmomatic-0.39.jar PE -threads 36 -phred33 \
     "$MATE_1" "$MATE_2" \

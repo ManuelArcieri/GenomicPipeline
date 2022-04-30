@@ -11,5 +11,5 @@ set -e
 module load autoload profile/bioinf
 module load fastqc
 
-bash -c "mkdir --parents $OUT_DIR"
+python3 $"GEP_HOME"/jobs/makedirs.py "$OUT_DIR"
 fastqc --outdir "$OUT_DIR" --threads 6 "$SAMPLE"

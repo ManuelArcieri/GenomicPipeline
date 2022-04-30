@@ -4,7 +4,7 @@ from pipeline import Pipeline
 from sys import argv, stderr
 
 
-VERSION = '0.1.10'
+VERSION = '0.1.11'
 
 
 def main():

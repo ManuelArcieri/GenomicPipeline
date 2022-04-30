@@ -14,7 +14,7 @@ set -e
 module load autoload profile/bioinf
 module load hisat2
 
-bash -c "mkdir --parents $(dirname "$OUT_FILE")"
+python3 $"GEP_HOME"/jobs/makedirs.py "$(dirname "$OUT_FILE")"
 
 hisat2 --threads 36 --downstream-transcriptome-assembly --quiet \
     -x "$HISAT2_HOME"/genomic_indexes/hg38_UCSC/genome \

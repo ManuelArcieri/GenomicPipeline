@@ -13,7 +13,7 @@ module load autoload profile/bioinf
 module load stringtie
 module load illumina_genome_Homo_sapiens
 
-bash -c "mkdir --parents $(dirname "$OUT_FILE")"
+python3 $"GEP_HOME"/jobs/makedirs.py "$(dirname "$OUT_FILE")"
 
 stringtie -o "$OUT_FILE" \
     -eB -p 36 -G "$ANNOTATION"/Genes/genes.gtf \
