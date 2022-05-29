@@ -135,3 +135,4 @@ dmypy.json
 # Svelte
 */node_modules/
 *.DS_Store
+website/public/build/*

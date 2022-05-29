@@ -123,6 +123,15 @@ main .row {
     margin-bottom: 0.2rem !important;
 }
 
+.material-symbols-rounded {
+    vertical-align: text-top !important;
+    font-size: 1.5rem !important;
+}
+
+.modal-dialog {
+    max-width: 60% !important;
+}
+
 code {
     font-size: 1.1rem !important;
     color: var(--theme-color) !important;
