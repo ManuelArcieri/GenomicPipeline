@@ -2,6 +2,7 @@
     "use strict";
 
     import * as pipeline from "./pipeline";
+    import {jobs, jobByUUID} from "./stores";
 
     let pipelineName = "";
     let accountName = "";
@@ -130,6 +131,36 @@
                         <div class="form-floating">
                             <input type="text" id="partitionInput" bind:value={pipeline.partition} class="form-control" placeholder="Slurm partition" minlength="1" spellcheck="true" required>
                             <label for="partitionInput">Slurm partition</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input type="text" id="variablesInput" bind:value={pipeline.variables} class="form-control" placeholder="Environment variables (comma separated)" spellcheck="true" required>
+                            <label for="partitionInput">Environment variables (comma separated)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-caption">
+                    <span>Dependencies</span>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <ul id="dependenciesList" class="list-group">
+                                {#each $jobs as job}
+                                    {#if job.UUID in $jobByUUID}
+                                        <li class="list-group-item">
+                                            <input class="form-check-input me-1" type="checkbox" value="{job.UUID}">
+                                            {job.jobName}
+                                        </li>
+                                    {/if}
+                                {/each}
+                            </ul>
                         </div>
                     </div>
                 </div>

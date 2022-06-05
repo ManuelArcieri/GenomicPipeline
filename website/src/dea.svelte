@@ -1,5 +1,6 @@
 <script>
-    import {pipelineData} from "./stores";
+    // import {pipelineData} from "./stores";
+    let pipelineData = {};
 </script>
 
 

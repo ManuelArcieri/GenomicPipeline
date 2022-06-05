@@ -9,12 +9,12 @@
 }
 
 html {
-    font-family: "Noto Sans", sans-serif;
+    font-family: "Noto Sans", sans-serif !important;
     font-size: 1.1rem;
 }
 
 .monospace {
-    font-family: "Noto Sans Mono", monospace;
+    font-family: "Noto Sans Mono", monospace !important;
 }
 
 main {
@@ -76,6 +76,17 @@ main .row {
 .form-control:focus {
     border-color: var(--theme-color-light) !important;
     box-shadow: 0 0 0 0.25rem var(--theme-color-transparent) !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--theme-color-light) !important;
+    border-color: var(--theme-color-light) !important;
+}
+
+.form-check-input:focus {
+    background-color: var(--theme-color-light) !important;
+    border-color: var(--theme-color-light) !important;
+    box-shadow: 0 0 0 .25rem var(--theme-color-transparent-light) !important;
 }
 
 .accordion-button:focus {
