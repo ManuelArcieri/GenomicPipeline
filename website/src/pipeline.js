@@ -100,9 +100,10 @@ function createJob() {
 
     stores.jobs.update(contents => [...contents, newJob]);
     stores.jobByUUID.update(contents => {
-        contents[UUID] = newJob;
+        contents.set(UUID, newJob);
         return contents;
     });
+    updateJobsByStep();
 }
 
 function isEmpty(string)
@@ -110,7 +111,7 @@ function isEmpty(string)
     return string.length <= 0;
 }
 
-function getJobsByStep()
+function updateJobsByStep()
 {
     const jobs = get(stores.jobs);
     const jobByUUID = get(stores.jobByUUID);
@@ -120,13 +121,62 @@ function getJobsByStep()
             job.step = 0;
 
     let somethingChanged = true;
+    let finalStep = 0;
     while (somethingChanged)
     {
         somethingChanged = false;
         for (const job of jobs)
-            if (job.step !== -1)
-                for (const previousJob of job.dependencies)
-                    if (job.dependencies.length === 0)
-                        job.step = 0;
+            if (job.step === -1)
+            {
+                let maxStep = -1;
+                for (const parentJob of getParentJobs(job, jobByUUID)) {
+                    if (parentJob.step === -1) {
+                        maxStep = -1;
+                        break;
+                    }
+                    maxStep = Math.max(maxStep, parentJob.step);
+                }
+
+                if (maxStep !== -1) {
+                    job.step = maxStep + 1;
+                    finalStep = Math.max(finalStep, job.step);
+                    somethingChanged = true;
+                }
+            }
     }
+
+    somethingChanged = true;
+    for (const job of jobs)
+        if (job.step === -1) {
+            somethingChanged = false;
+            break;
+        }
+
+    if (!somethingChanged)
+        throw new Error("Cyclic or broken dependency detected!");
+
+    const jobByStep = new Map();
+    for (const job of jobs) {
+        let tempJobs = jobByStep.get(job.step);
+        if (tempJobs === undefined)
+            tempJobs = [];
+        tempJobs.push(job);
+        jobByStep.set(job.step, tempJobs);
+    }
+
+    stores.jobsByStep.set([]);
+    for (let i = 0; i <= finalStep; i++) {
+        stores.jobsByStep.update(contents => {
+            return [...contents, [i, jobByStep.get(i)]];
+        });
+    }
+    console.debug(get(stores.jobsByStep));
+}
+
+function getParentJobs(job, jobByUUID)
+{
+    const parents = [];
+    for (const uuid of job.dependencies)
+        parents.push(jobByUUID.get(uuid));
+    return parents;
 }

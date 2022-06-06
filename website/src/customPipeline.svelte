@@ -2,7 +2,7 @@
     "use strict";
 
     import * as pipeline from "./pipeline";
-    import {jobs, jobByUUID} from "./stores";
+    import {jobs, jobByUUID, jobsByStep} from "./stores";
 
     let pipelineName = "";
     let accountName = "";
@@ -66,8 +66,37 @@
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addJobModal"><span class="material-symbols-rounded">add</span> Add new job</button>
         </div>
     </div>
-</div>
 
+    {#each $jobsByStep as i_jobs}
+        <div class="section-caption">
+            <span>Step {i_jobs[0] + 1}</span>
+        </div>
+
+        <div class="row">
+            <div class="accordion" id="step{i_jobs[0]}Accordion">
+
+                {#each i_jobs[1] as job}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{job.UUID}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{job.UUID}">
+                                {job.jobName}
+                            </button>
+                        </h2>
+
+                        <div id="collapse{job.UUID}" class="accordion-collapse collapse" data-bs-parent="#step{i_jobs[0]}Accordion">
+                            <div class="accordion-body">
+                                <div class="row">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {/each}
+
+            </div>
+        </div>
+    {/each}
+</div>
 
 <div class="modal fade" id="addJobModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -153,7 +182,7 @@
                         <div class="form-floating">
                             <ul id="dependenciesList" class="list-group">
                                 {#each $jobs as job}
-                                    {#if job.UUID in $jobByUUID}
+                                    {#if $jobByUUID.has(job.UUID)}
                                         <li class="list-group-item">
                                             <input class="form-check-input me-1" type="checkbox" value="{job.UUID}">
                                             {job.jobName}
@@ -174,3 +203,4 @@
         </div>
     </div>
 </div>
+
