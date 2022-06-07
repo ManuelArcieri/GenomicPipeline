@@ -2,7 +2,7 @@
     "use strict";
 
     import * as pipeline from "./pipeline";
-    import {jobs, jobByUUID, jobsByStep} from "./stores";
+    import {jobByUUID, jobsByStep} from "./stores";
 
     let pipelineName = "";
     let accountName = "";
@@ -79,20 +79,100 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading{job.UUID}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{job.UUID}">
-                                {job.jobName}
+                                {$jobByUUID[job.UUID]["jobName"]}
                             </button>
                         </h2>
 
                         <div id="collapse{job.UUID}" class="accordion-collapse collapse" data-bs-parent="#step{i_jobs[0]}Accordion">
                             <div class="accordion-body">
                                 <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" bind:value={$jobByUUID[job.UUID]["jobName"]} class="form-control" placeholder="Job Name" minlength="1" spellcheck="true" required>
+                                            <label for="JobNameInput">Job name</label>
+                                        </div>
+                                    </div>
 
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" bind:value={$jobByUUID[job.UUID]["scriptFile"]} class="form-control" placeholder="Script file" minlength="1" spellcheck="true" required>
+                                            <label for="scriptFileInput">Script file</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" bind:value={$jobByUUID[job.UUID]["nodes"]} class="form-control" placeholder="Number of nodes" minlength="1" spellcheck="true" required>
+                                            <label for="nodesInput">Number of nodes</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" bind:value={$jobByUUID[job.UUID]["threads"]} class="form-control" placeholder="Number of threads" minlength="1" spellcheck="true" required>
+                                            <label for="threadsInput">Number of threads</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" bind:value={$jobByUUID[job.UUID]["memory"]} class="form-control" placeholder="Memory" minlength="1" spellcheck="true" required>
+                                            <label for="memoryInput">Memory</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" bind:value={$jobByUUID[job.UUID]["runTime"]} class="form-control" placeholder="Maximum run time" minlength="1" spellcheck="true" required>
+                                            <label for="runTimeInput">Maximum run time</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" bind:value={$jobByUUID[job.UUID]["partition"]} class="form-control" placeholder="Slurm partition" minlength="1" spellcheck="true" required>
+                                            <label for="partitionInput">Slurm partition</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <input type="text" bind:value={$jobByUUID[job.UUID]["variables"]} class="form-control" placeholder="Environment variables (comma separated)" spellcheck="true" required>
+                                            <label for="partitionInput">Environment variables (comma separated)</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="section-caption">
+                                    <span>Dependencies</span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <ul class="list-group">
+                                                {#each Array.from(Object.values($jobByUUID)) as job}
+                                                    <li class="list-group-item">
+                                                        <input class="form-check-input me-1" type="checkbox" value="{job.UUID}">
+                                                        {job.jobName}
+                                                    </li>
+                                                {/each}
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 {/each}
-
             </div>
         </div>
     {/each}
@@ -181,13 +261,11 @@
                     <div class="col-12">
                         <div class="form-floating">
                             <ul id="dependenciesList" class="list-group">
-                                {#each $jobs as job}
-                                    {#if $jobByUUID.has(job.UUID)}
-                                        <li class="list-group-item">
-                                            <input class="form-check-input me-1" type="checkbox" value="{job.UUID}">
-                                            {job.jobName}
-                                        </li>
-                                    {/if}
+                                {#each Array.from(Object.values($jobByUUID)) as job}
+                                    <li class="list-group-item">
+                                        <input class="form-check-input me-1" type="checkbox" value="{job.UUID}">
+                                        {job.jobName}
+                                    </li>
                                 {/each}
                             </ul>
                         </div>

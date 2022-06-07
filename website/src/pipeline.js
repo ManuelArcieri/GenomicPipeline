@@ -98,11 +98,11 @@ function createJob() {
         dependencies
     };
 
-    stores.jobs.update(contents => [...contents, newJob]);
     stores.jobByUUID.update(contents => {
-        contents.set(UUID, newJob);
+        contents[UUID] = newJob;
         return contents;
     });
+
     updateJobsByStep();
 }
 
@@ -113,12 +113,18 @@ function isEmpty(string)
 
 function updateJobsByStep()
 {
-    const jobs = get(stores.jobs);
     const jobByUUID = get(stores.jobByUUID);
+    const jobs = Array.from(Object.values(jobByUUID));
+    if (Object.keys(jobByUUID).length === 0) {
+        stores.jobsByStep.set([]);
+        return;
+    }
 
     for (const job of jobs)
         if (job.dependencies.length === 0)
             job.step = 0;
+        else
+            job.step = -1;
 
     let somethingChanged = true;
     let finalStep = 0;
@@ -164,19 +170,16 @@ function updateJobsByStep()
         jobByStep.set(job.step, tempJobs);
     }
 
-    stores.jobsByStep.set([]);
-    for (let i = 0; i <= finalStep; i++) {
-        stores.jobsByStep.update(contents => {
-            return [...contents, [i, jobByStep.get(i)]];
-        });
-    }
-    console.debug(get(stores.jobsByStep));
+    const jobsByStep = [];
+    for (let i = 0; i <= finalStep; i++)
+        jobsByStep.push([i, jobByStep.get(i)]);
+    stores.jobsByStep.set(jobsByStep);
 }
 
 function getParentJobs(job, jobByUUID)
 {
     const parents = [];
     for (const uuid of job.dependencies)
-        parents.push(jobByUUID.get(uuid));
+        parents.push(jobByUUID[uuid]);
     return parents;
 }
