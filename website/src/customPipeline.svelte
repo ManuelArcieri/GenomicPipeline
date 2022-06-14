@@ -3,12 +3,17 @@
 
     import * as pipeline from "./pipeline";
     import {jobByUUID, jobsByStep} from "./stores";
+    import {afterUpdate} from "svelte";
 
     let pipelineName = "";
     let accountName = "";
     let workingDirectory = "";
     let logsDirectory = "";
     let samples = "";
+
+    afterUpdate(() => {
+        pipeline.updateDependencyCheckboxes();
+    });
 </script>
 
 <div class="container-fluid">
@@ -159,11 +164,13 @@
                                     <div class="col-12">
                                         <div class="form-floating">
                                             <ul class="list-group">
-                                                {#each Array.from(Object.values($jobByUUID)) as job}
-                                                    <li class="list-group-item">
-                                                        <input class="form-check-input me-1" type="checkbox" value="{job.UUID}">
-                                                        {job.jobName}
-                                                    </li>
+                                                {#each Array.from(Object.values($jobByUUID)) as jobBis}
+                                                    {#if job.UUID !== jobBis.UUID}
+                                                        <li class="list-group-item">
+                                                            <input on:change={(event) => {pipeline.updateJobDependencies(event, job.UUID, jobBis.UUID)}} class="form-check-input me-1" type="checkbox" value="{jobBis.UUID}" data-parent="{job.UUID}">
+                                                            {jobBis.jobName}
+                                                        </li>
+                                                    {/if}
                                                 {/each}
                                             </ul>
                                         </div>

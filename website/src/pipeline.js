@@ -30,6 +30,7 @@ export let runTime = "";
 export let partition = "";
 export let variables = "";
 
+
 export function addJob()
 {
     if (isEmpty(jobName)) {
@@ -104,6 +105,7 @@ function createJob() {
     });
 
     updateJobsByStep();
+    collapseAllAccordions();
 }
 
 function isEmpty(string)
@@ -174,6 +176,8 @@ function updateJobsByStep()
     for (let i = 0; i <= finalStep; i++)
         jobsByStep.push([i, jobByStep.get(i)]);
     stores.jobsByStep.set(jobsByStep);
+
+    updateDependencyCheckboxes();
 }
 
 function getParentJobs(job, jobByUUID)
@@ -182,4 +186,62 @@ function getParentJobs(job, jobByUUID)
     for (const uuid of job.dependencies)
         parents.push(jobByUUID[uuid]);
     return parents;
+}
+
+function collapseAllAccordions()
+{
+    for (let accordion of document.querySelectorAll(".accordion .collapse")) {
+        const accordionInstance = bootstrap.Collapse.getInstance(accordion);
+        if (accordionInstance !== null && accordionInstance !== undefined)
+            accordionInstance.hide();
+    }
+}
+
+export function updateDependencyCheckboxes()
+{
+    const checkboxes = document.querySelectorAll(".accordion-item input[type=\"checkbox\"]");
+    for (let checkbox of checkboxes) {
+        const job = get(stores.jobByUUID)[checkbox.dataset.parent];
+        const possibleDependency = get(stores.jobByUUID)[checkbox.value];
+
+        if (job.dependencies.includes(possibleDependency.UUID))
+            checkbox.setAttribute("checked", "true");
+        else
+            checkbox.removeAttribute("checked");
+    }
+}
+
+export function updateJobDependencies(event, parentJobUUID, relatedJobUUID)
+{
+    if (!event.isTrusted)
+        return;
+
+    const parentJob = get(stores.jobByUUID)[parentJobUUID];
+
+    if (parentJob.dependencies.includes(relatedJobUUID))
+        event.target.setAttribute("checked", "true");
+    else
+        event.target.removeAttribute("checked");
+
+    if (event.target.checked) {
+        if (!parentJob.dependencies.includes(relatedJobUUID)) {
+            stores.jobByUUID.update((contents) => {
+                const temp = contents[parentJobUUID]["dependencies"];
+                temp.push(relatedJobUUID);
+                contents[parentJobUUID]["dependencies"] = temp;
+                return contents;
+            });
+            updateJobsByStep();
+        }
+    } else {
+        if (parentJob.dependencies.includes(relatedJobUUID)) {
+            stores.jobByUUID.update((contents) => {
+                let temp = contents[parentJobUUID]["dependencies"];
+                temp = temp.filter(uuid => uuid !== relatedJobUUID);
+                contents[parentJobUUID]["dependencies"] = temp;
+                return contents;
+            });
+            updateJobsByStep();
+        }
+    }
 }
