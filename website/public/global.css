@@ -6,6 +6,7 @@
     --theme-color-transparent-light: rgba(57, 73, 171, 0.09);
     --theme-color-light: #666AD1;
     --theme-color-dark: #001970;
+    --error-color: #C62828;
 }
 
 html {
@@ -58,6 +59,10 @@ main .row {
     font-size: 1.3rem;
     margin: 2rem !important;
     color: var(--theme-color);
+}
+
+.error-color {
+    color: var(--error-color);
 }
 
 .margin-left-small {

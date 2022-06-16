@@ -129,7 +129,7 @@ function updateJobsByStep()
             job.step = -1;
 
     let somethingChanged = true;
-    let finalStep = 0;
+    let finalStep = -1;
     while (somethingChanged)
     {
         somethingChanged = false;
@@ -150,19 +150,12 @@ function updateJobsByStep()
                     finalStep = Math.max(finalStep, job.step);
                     somethingChanged = true;
                 }
+            } else {
+                finalStep = Math.max(finalStep, job.step);
             }
     }
 
-    somethingChanged = true;
-    for (const job of jobs)
-        if (job.step === -1) {
-            somethingChanged = false;
-            break;
-        }
-
-    if (!somethingChanged)
-        throw new Error("Cyclic or broken dependency detected!");
-
+    let firstStep = 0;
     const jobByStep = new Map();
     for (const job of jobs) {
         let tempJobs = jobByStep.get(job.step);
@@ -170,14 +163,16 @@ function updateJobsByStep()
             tempJobs = [];
         tempJobs.push(job);
         jobByStep.set(job.step, tempJobs);
+        firstStep = Math.min(firstStep, job.step);
     }
 
     const jobsByStep = [];
-    for (let i = 0; i <= finalStep; i++)
+    for (let i = firstStep; i <= finalStep; i++)
         jobsByStep.push([i, jobByStep.get(i)]);
     stores.jobsByStep.set(jobsByStep);
 
     updateDependencyCheckboxes();
+    collapseAllAccordions();
 }
 
 function getParentJobs(job, jobByUUID)
@@ -197,19 +192,17 @@ function collapseAllAccordions()
     }
 }
 
-export function updateDependencyCheckboxes()
+function updateDependencyCheckboxes()
 {
     const checkboxes = document.querySelectorAll(".accordion-item input[type=\"checkbox\"]");
     for (let checkbox of checkboxes) {
         const job = get(stores.jobByUUID)[checkbox.dataset.parent];
         const possibleDependency = get(stores.jobByUUID)[checkbox.value];
-
-        if (job.dependencies.includes(possibleDependency.UUID))
-            checkbox.setAttribute("checked", "true");
-        else
-            checkbox.removeAttribute("checked");
+        checkbox.checked = !!job.dependencies.includes(possibleDependency.UUID);
     }
 }
+
+setInterval(updateDependencyCheckboxes, 700);
 
 export function updateJobDependencies(event, parentJobUUID, relatedJobUUID)
 {

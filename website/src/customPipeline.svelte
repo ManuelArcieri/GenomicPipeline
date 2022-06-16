@@ -3,17 +3,12 @@
 
     import * as pipeline from "./pipeline";
     import {jobByUUID, jobsByStep} from "./stores";
-    import {afterUpdate} from "svelte";
 
     let pipelineName = "";
     let accountName = "";
     let workingDirectory = "";
     let logsDirectory = "";
     let samples = "";
-
-    afterUpdate(() => {
-        pipeline.updateDependencyCheckboxes();
-    });
 </script>
 
 <div class="container-fluid">
@@ -74,7 +69,11 @@
 
     {#each $jobsByStep as i_jobs}
         <div class="section-caption">
-            <span>Step {i_jobs[0] + 1}</span>
+            {#if i_jobs[0] === -1}
+                <span class="error-color">Invalid dependencies</span>
+            {:else}
+                <span>Step {i_jobs[0] + 1}</span>
+            {/if}
         </div>
 
         <div class="row">
