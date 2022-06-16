@@ -16,5 +16,5 @@ module load illumina_genome_Homo_sapiens
 mkdir --parents "$(dirname "$OUT_FILE")"
 
 stringtie -o "$OUT_FILE" \
-    -eB -p 36 -G "$ANNOTATION"/Genes/genes.gtf \
+    -eB -p "$GEP_N_THREADS" -G "$ANNOTATION"/Genes/genes.gtf \
     -l "$LABEL" "$BAM_FILE"

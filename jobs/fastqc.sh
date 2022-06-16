@@ -13,4 +13,4 @@ module load fastqc
 
 mkdir --parents "$OUT_DIR"
 
-fastqc --outdir "$OUT_DIR" --threads 6 "$SAMPLE"
+fastqc --outdir "$OUT_DIR" --threads "$GEP_N_THREADS" "$SAMPLE"

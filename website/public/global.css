@@ -18,7 +18,7 @@ html {
     font-family: "Noto Sans Mono", monospace !important;
 }
 
-main {
+.section-container {
     max-width: 70%;
     margin: 3rem;
     padding: 1rem;
@@ -30,11 +30,15 @@ label {
     margin-bottom: 0.5rem;
 }
 
-main .container-fluid {
+.section-container .container-fluid {
     margin-top: 1rem;
 }
 
-main .row {
+.section-container .row {
+    margin-top: 2rem;
+}
+
+.modal-body .row {
     margin-top: 2rem;
 }
 
@@ -67,6 +71,10 @@ main .row {
 
 .margin-left-small {
     margin-left: 0.5rem;
+}
+
+.margin-bottom-end-section {
+    margin-bottom: 2rem;
 }
 
 .w-20rem {
@@ -149,7 +157,13 @@ main .row {
 }
 
 code {
-    font-size: 1.1rem !important;
     color: var(--theme-color) !important;
     font-family: "Noto Sans Mono", monospace !important;
+    padding: 0.2rem;
+    border-radius: 0.4rem;
+    background-color: #FAFAFA;
+}
+
+.text-spacer {
+    margin-top: 2.5rem;
 }

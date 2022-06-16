@@ -13,4 +13,4 @@ module load samtools
 
 mkdir --parents "$(dirname "$OUT_FILE")"
 
-samtools sort -@ 36 -o "$OUT_FILE" "$SAM_FILE"
+samtools sort -@ "$GEP_N_THREADS" -o "$OUT_FILE" "$SAM_FILE"

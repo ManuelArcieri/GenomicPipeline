@@ -4,7 +4,7 @@ from pipeline import Pipeline
 from sys import argv, stderr
 
 
-VERSION = '0.1.12'
+VERSION = '0.2.1'
 
 
 def main():
@@ -71,6 +71,8 @@ def print_help():
     print('      Runs a single step of the specified pipeline (.toml) file\n')
     print('- gep status [PIPELINE FILE]')
     print('      Prints the status of all jobs of the specified pipeline (.toml) file\n')
+    print('- gep requeue failed  [PIPELINE FILE]')
+    print('      Requeue all failed jobs of the specified pipeline (.toml) file\n')
     print('- gep upgrade')
     print('      Upgrades Genomic Pipeline to its latest version\n')
 

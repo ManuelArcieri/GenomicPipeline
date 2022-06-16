@@ -13,5 +13,5 @@
 set -e
 
 echo "Quantifying RNA-seq reads..."
-$SALMON_EXE --no-version-check quant --index "$INDEX_DIR" --threads 8 --libType A --gcBias --numGibbsSamples 20 --output "$OUT_DIR" --mates1 "$MATES_1" --mates2 "$MATES_2"
+$SALMON_EXE --no-version-check quant --index "$INDEX_DIR" --threads "$GEP_N_THREADS" --libType A --gcBias --numGibbsSamples 20 --output "$OUT_DIR" --mates1 "$MATES_1" --mates2 "$MATES_2"
 echo "RNA-seq reads quantified successfully"

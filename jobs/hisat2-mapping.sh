@@ -16,7 +16,7 @@ module load hisat2
 
 mkdir --parents "$(dirname "$OUT_FILE")"
 
-hisat2 --threads 36 --downstream-transcriptome-assembly --quiet \
+hisat2 --threads "$GEP_N_THREADS" --downstream-transcriptome-assembly --quiet \
     -x "$HISAT2_HOME"/genomic_indexes/hg38_UCSC/genome \
     -1 "$MATE_PAIRED_1" \
     -2 "$MATE_PAIRED_2" \
