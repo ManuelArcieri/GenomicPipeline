@@ -258,6 +258,11 @@ export function generatePipeline()
         return;
     }
 
+    if (isEmpty(pipelineName) || isEmpty(accountName) || isEmpty(workingDirectory) || isEmpty(logsDirectory)) {
+        alert("Please specify the runtime environment for the pipeline");
+        return;
+    }
+
     const splitSamples = samples.trim().split("\n");
 
     let jobSections = [];
