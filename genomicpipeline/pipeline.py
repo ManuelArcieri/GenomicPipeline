@@ -103,12 +103,18 @@ class Pipeline:
         for step in range(self.size):
             print('|\n|')
             print(f'(Step {step + 1})')
+
             for job in self.jobs_per_step[step]:
+                env = job.environment_variables
+                if env is not None:
+                    env = [e for e in env.split(',') if not e.startswith('GEP_')]
+                    env = ','.join(env)
+
                 print('|\n|')
                 print(f'+---+--- Job: {job.get_pretty_name()} ({job.id if job.id is not None else "-"})')
                 print(f'|   +--- Status: {job.status.value}{(" (" + job.reason + ")") if job.reason is not None else ""}')
                 print(f'|   +--- Run time: {job.current_run_time if job.current_run_time is not None else "-"}')
-                print(f'|   +--- Env: {job.environment_variables if job.environment_variables is not None else "-"}')
+                print(f'|   +--- Env: {env if env is not None else "-"}')
                 print(f'|   +--- UUID: {job.uuid}')
         print()
 

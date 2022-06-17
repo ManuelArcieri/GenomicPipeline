@@ -275,9 +275,9 @@ export function generatePipeline()
                 "partition": job.partition,
                 "logs_directory": logsDirectory,
                 "max_run_time": job.runTime,
-                "environment_variables": [`GEP_WD=${workingDirectory}`, `GEP_JOB_NAME=${job.jobName}`, `GEP_SCRIPT_FILE=${job.scriptFile}`,
-                                          `GEP_N_NODES=${job.nodes}`, `GEP_N_THREADS=${job.threads}`, `GEP_MEMORY=${job.memory}`,
-                                          `GEP_MAX_RUNTIME=${job.runTime}`, `GEP_SLURM_PARTITION=${job.partition}`, `GEP_EXEC_POLICY=${job.runMode}`].join(","),
+                "environment_variables": [`GEP_WD="${workingDirectory}"`, `GEP_JOB_NAME="${job.jobName}"`, `GEP_SCRIPT_FILE="${job.scriptFile}"`,
+                                          `GEP_N_NODES="${job.nodes}"`, `GEP_N_THREADS="${job.threads}"`, `GEP_MEMORY="${job.memory}"`,
+                                          `GEP_MAX_RUNTIME="${job.runTime}"`, `GEP_SLURM_PARTITION="${job.partition}"`, `GEP_EXEC_POLICY="${job.runMode}"`].join(","),
                 "pipeline_step": stepList[0]
             };
 
@@ -292,7 +292,7 @@ export function generatePipeline()
                     let newTable = {...table};
                     newTable["name"] = newTable["name"].replace("$GEP_SAMPLE", sample);
                     newTable["script_file"] = newTable["script_file"].replace("$GEP_SAMPLE", sample);
-                    newTable["environment_variables"] = `GEP_SAMPLE=${sample},${newTable["environment_variables"]}`;
+                    newTable["environment_variables"] = `GEP_SAMPLE="${sample}",${newTable["environment_variables"]}`;
                     jobSections.push(Section(newTable));
                 }
             else
