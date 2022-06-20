@@ -1,11 +1,6 @@
 #!/bin/bash
 #
 # Assemble RNA-Seq alignments into potential transcripts.
-#
-# INPUT:
-# - $BAM_FILE: input BAM file (e.g. "/some/dir/SRR8615270.bam")
-# - $LABEL: prefix for the name of the output transcripts (e.g. "SRR8615270")
-# - $OUT_FILE: output GTF file (e.g. "/some/dir/SRR8615270.gtf")
 
 set -e
 
@@ -13,8 +8,11 @@ module load autoload profile/bioinf
 module load stringtie
 module load illumina_genome_Homo_sapiens
 
-mkdir --parents "$(dirname "$OUT_FILE")"
+BAM_FILE="$GEP_WD/BAM/$GEP_SAMPLE.bam"
+GTF_FILE="$GEP_WD/GTF/$GEP_SAMPLE.gtf"
 
-stringtie -o "$OUT_FILE" \
+mkdir --parents "$(dirname "$GTF_FILE")"
+
+stringtie -o "$GTF_FILE" \
     -eB -p "$GEP_N_THREADS" -G "$ANNOTATION"/Genes/genes.gtf \
-    -l "$LABEL" "$BAM_FILE"
+    -l "$GEP_SAMPLE" "$BAM_FILE"

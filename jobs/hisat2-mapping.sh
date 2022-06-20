@@ -1,24 +1,19 @@
 #!/bin/bash
 #
 # Maps a pair-ended sample into a SAM file.
-#
-# INPUT:
-# - $MATE_PAIRED_1: paired mate 1 (e.g. "SRR8615270_1.paired.fastq")
-# - $MATE_PAIRED_2: paired mate 2 (e.g. "SRR8615270_2.paired.fastq")
-# - $MATE_UNPAIRED_1: unpaired mate 1 (e.g. "SRR8615270_1.unpaired.fastq")
-# - $MATE_UNPAIRED_2: unpaired mate 2 (e.g. "SRR8615270_2.unpaired.fastq")
-# - $OUT_FILE: output file (e.g. "/some/dir/SRR8615270.sam")
 
 set -e
 
 module load autoload profile/bioinf
 module load hisat2
 
+TRIM_DIR="$GEP_WD/trimmed"
+
 mkdir --parents "$(dirname "$OUT_FILE")"
 
 hisat2 --threads "$GEP_N_THREADS" --downstream-transcriptome-assembly --quiet \
     -x "$HISAT2_HOME"/genomic_indexes/hg38_UCSC/genome \
-    -1 "$MATE_PAIRED_1" \
-    -2 "$MATE_PAIRED_2" \
-    -U "$MATE_UNPAIRED_1","$MATE_UNPAIRED_2" \
-    -S "$OUT_FILE"
+    -1 "$TRIM_DIR/$GEP_SAMPLE"_1.trimmed.paired.fastq \
+    -2 "$TRIM_DIR/$GEP_SAMPLE"_2.trimmed.paired.fastq \
+    -U "$TRIM_DIR/$GEP_SAMPLE"_1.trimmed.unpaired.fastq,"$TRIM_DIR/$GEP_SAMPLE"_2.trimmed.unpaired.fastq \
+    -S "$GEP_WD/SAM/$GEP_SAMPLE.sam"

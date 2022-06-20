@@ -1,16 +1,15 @@
 #!/bin/bash
 #
 # Do some quality control checks on raw sequence data coming from high throughput sequencing pipelines.
-#
-# INPUT:
-# - $SAMPLE: FASTQ file (e.g. "/some/dir/SRR8615270.fastq")
-# - $OUT_DIR: output directory (e.g. "/some/dir/SRR8615270")
 
 set -e
 
 module load autoload profile/bioinf
 module load fastqc
 
-mkdir --parents "$OUT_DIR"
+FASTQC_DIR="$GEP_WD/fastqc/$GEP_SAMPLE"
 
-fastqc --outdir "$OUT_DIR" --threads "$GEP_N_THREADS" "$SAMPLE"
+mkdir --parents "$FASTQC_DIR"
+
+fastqc --outdir "$FASTQC_DIR" --threads "$GEP_N_THREADS" "$GEP_WD/FASTQ/$GEP_SAMPLE"_1.fastq
+fastqc --outdir "$FASTQC_DIR" --threads "$GEP_N_THREADS" "$GEP_WD/FASTQ/$GEP_SAMPLE"_2.fastq
