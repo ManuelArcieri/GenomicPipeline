@@ -287,7 +287,7 @@ export function generatePipeline()
             };
 
             if (!isEmpty(job.variables))
-                table["environment_variables"] = `${job.variables},${table["environment_variables"]}`;
+                table["environment_variables"] = `${table["environment_variables"]},${job.variables}`;
 
             if (job.dependencies.length > 0)
                 table["previous_steps_uuid"] = job.dependencies.join(",");
