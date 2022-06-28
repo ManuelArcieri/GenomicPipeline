@@ -167,3 +167,12 @@ code {
 .text-spacer {
     margin-top: 2.5rem;
 }
+
+details {
+    padding-left: calc(var(--bs-gutter-x) * .5);
+    padding-right: calc(var(--bs-gutter-x) * .5);
+}
+
+textarea {
+    height: 6rem !important;
+}

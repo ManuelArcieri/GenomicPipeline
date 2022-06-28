@@ -2,6 +2,7 @@
 
 import {get} from "svelte/store";
 import * as stores from "./stores";
+import {scripts} from "./bundledScripts";
 import {Section, stringify} from "@ltd/j-toml";
 
 
@@ -31,6 +32,8 @@ export let logsDirectory = "";
 export let samples = "";
 
 export let jobName = "";
+export let scriptType = "bundled";
+export let bundledScriptFile = "barrier.sh";
 export let scriptFile = "";
 export let nodes = "";
 export let threads = "";
@@ -48,7 +51,7 @@ export function addJob()
         return;
     }
 
-    if (isEmpty(scriptFile)) {
+    if (isEmpty(scriptFile) && scriptType === "custom") {
         alert("Please enter a script file");
         return;
     }
@@ -99,7 +102,7 @@ function createJob() {
         UUID,
         step: -1,
         jobName,
-        scriptFile,
+        scriptFile: scriptType === "bundled" ? bundledScriptFile : scriptFile,
         nodes,
         threads,
         memory,
@@ -325,4 +328,18 @@ export function generatePipeline()
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+}
+
+export function checkJobEnvVariables()
+{
+    if (scriptType === "custom")
+        return;
+
+    for (let item of scripts) {
+        if (item.file === bundledScriptFile) {
+            const envVars = item.envVariables;
+            variables = isEmpty(envVars) ? "" : envVars;
+            return;
+        }
+    }
 }

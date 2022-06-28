@@ -1,6 +1,7 @@
 <script>
     import * as pipeline from "./pipeline";
     import {jobByUUID, jobsByStep} from "./stores";
+    import * as bundledScript from "./bundledScripts";
 </script>
 
 
@@ -34,8 +35,8 @@
         <div class="row">
             <div class="col-6">
                 <div class="form-floating">
-                    <input type="text" id="workingDirectoryInput" bind:value={pipeline.workingDirectory} class="form-control" placeholder="Working directory ($GEP_WD)" minlength="1" spellcheck="true" required>
-                    <label for="workingDirectoryInput">Working directory ($GEP_WD)</label>
+                    <input type="text" id="workingDirectoryInput" bind:value={pipeline.workingDirectory} class="form-control" placeholder="Working directory" minlength="1" spellcheck="true" required>
+                    <label for="workingDirectoryInput">Working directory</label>
                 </div>
             </div>
 
@@ -91,31 +92,15 @@
                                     <div class="row">
                                         <div class="col-6">
                                             <div class="form-floating">
-                                                <input type="text" bind:value={$jobByUUID[job.UUID]["jobName"]} class="form-control" placeholder="Job name ($GEP_JOB_NAME)" minlength="1" spellcheck="true" required>
-                                                <label>Job name ($GEP_JOB_NAME)</label>
+                                                <input type="text" bind:value={$jobByUUID[job.UUID]["jobName"]} class="form-control" placeholder="Job name" minlength="1" spellcheck="true" required>
+                                                <label>Job name</label>
                                             </div>
                                         </div>
 
                                         <div class="col-6">
                                             <div class="form-floating">
-                                                <input type="text" bind:value={$jobByUUID[job.UUID]["scriptFile"]} class="form-control" placeholder="Script file ($GEP_SCRIPT_FILE)" minlength="1" spellcheck="true" required>
-                                                <label>Script file ($GEP_SCRIPT_FILE)</label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="form-floating">
-                                                <input type="text" bind:value={$jobByUUID[job.UUID]["nodes"]} class="form-control" placeholder="Number of nodes ($GEP_N_NODES)" minlength="1" spellcheck="true" required>
-                                                <label>Number of nodes ($GEP_N_NODES)</label>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-6">
-                                            <div class="form-floating">
-                                                <input type="text" bind:value={$jobByUUID[job.UUID]["threads"]} class="form-control" placeholder="Number of threads ($GEP_N_THREADS)" minlength="1" spellcheck="true" required>
-                                                <label>Number of threads ($GEP_N_THREADS)</label>
+                                                <input type="text" bind:value={$jobByUUID[job.UUID]["scriptFile"]} class="form-control" placeholder="Script file" minlength="1" spellcheck="true" required>
+                                                <label>Script file</label>
                                             </div>
                                         </div>
                                     </div>
@@ -123,15 +108,15 @@
                                     <div class="row">
                                         <div class="col-6">
                                             <div class="form-floating">
-                                                <input type="text" bind:value={$jobByUUID[job.UUID]["memory"]} class="form-control" placeholder="Memory ($GEP_MEMORY)" minlength="1" spellcheck="true" required>
-                                                <label>Memory ($GEP_MEMORY)</label>
+                                                <input type="text" bind:value={$jobByUUID[job.UUID]["nodes"]} class="form-control" placeholder="Number of nodes" minlength="1" spellcheck="true" required>
+                                                <label>Number of nodes</label>
                                             </div>
                                         </div>
 
                                         <div class="col-6">
                                             <div class="form-floating">
-                                                <input type="text" bind:value={$jobByUUID[job.UUID]["runTime"]} class="form-control" placeholder="Maximum run time ($GEP_MAX_RUNTIME)" minlength="1" spellcheck="true" required>
-                                                <label>Maximum run time ($GEP_MAX_RUNTIME)</label>
+                                                <input type="text" bind:value={$jobByUUID[job.UUID]["threads"]} class="form-control" placeholder="Number of threads" minlength="1" spellcheck="true" required>
+                                                <label>Number of threads</label>
                                             </div>
                                         </div>
                                     </div>
@@ -139,8 +124,24 @@
                                     <div class="row">
                                         <div class="col-6">
                                             <div class="form-floating">
-                                                <input type="text" bind:value={$jobByUUID[job.UUID]["partition"]} class="form-control" placeholder="Slurm partition ($GEP_SLURM_PARTITION)" minlength="1" spellcheck="true" required>
-                                                <label>Slurm partition ($GEP_SLURM_PARTITION)</label>
+                                                <input type="text" bind:value={$jobByUUID[job.UUID]["memory"]} class="form-control" placeholder="Memory" minlength="1" spellcheck="true" required>
+                                                <label>Memory</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-6">
+                                            <div class="form-floating">
+                                                <input type="text" bind:value={$jobByUUID[job.UUID]["runTime"]} class="form-control" placeholder="Maximum run time" minlength="1" spellcheck="true" required>
+                                                <label>Maximum run time</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-floating">
+                                                <input type="text" bind:value={$jobByUUID[job.UUID]["partition"]} class="form-control" placeholder="Slurm partition" minlength="1" spellcheck="true" required>
+                                                <label>Slurm partition</label>
                                             </div>
                                         </div>
 
@@ -148,9 +149,9 @@
                                             <div class="form-floating">
                                                 <select bind:value={$jobByUUID[job.UUID]["runMode"]} class="form-select">
                                                     <option value="once" selected>Run only once</option>
-                                                    <option value="forEachSample">Run once for each sample ($GEP_SAMPLE)</option>
+                                                    <option value="forEachSample">Run once for each sample</option>
                                                 </select>
-                                                <label>Execution policy ($GEP_EXEC_POLICY)</label>
+                                                <label>Execution policy</label>
                                             </div>
                                         </div>
                                     </div>
@@ -161,6 +162,25 @@
                                                 <input type="text" bind:value={$jobByUUID[job.UUID]["variables"]} class="form-control" placeholder="Environment variables (comma separated)" spellcheck="true" required>
                                                 <label>Environment variables (comma separated)</label>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <details>
+                                                <summary><strong>Built-in environment variables</strong></summary>
+                                                The following environment variables are automatically exported and can be used inside custom scripts:
+                                                <br><code>$GEP_SAMPLE</code> - (<strong>execution policy: "run once for each sample"</strong>) Label of the sample being analysed
+                                                <br><code>$GEP_WD</code> - Working directory
+                                                <br><code>$GEP_JOB_NAME</code> - Job name
+                                                <br><code>$GEP_SCRIPT_FILE</code> - Script file (path for custom scripts, file name for bundled scripts)
+                                                <br><code>$GEP_N_NODES</code> - Number of nodes
+                                                <br><code>$GEP_N_THREADS</code> - Number of threads
+                                                <br><code>$GEP_MEMORY</code> - Memory (RAM)
+                                                <br><code>$GEP_MAX_RUNTIME</code> - Maximum run time
+                                                <br><code>$GEP_SLURM_PARTITION</code> - Slurm partition
+                                                <br><code>$GEP_EXEC_POLICY</code> - Execution policy (either "once" or "forEachSample")
+                                            </details>
                                         </div>
                                     </div>
 
@@ -229,7 +249,11 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add new job</h5>
+                {#if pipeline.jobName === ""}
+                    <h5 class="modal-title">Add new job</h5>
+                {:else}
+                    <h5 class="modal-title">Add new job: {pipeline.jobName}</h5>
+                {/if}
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
@@ -237,15 +261,8 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="form-floating">
-                            <input type="text" id="JobNameInput" bind:value={pipeline.jobName} class="form-control" placeholder="Job name ($GEP_JOB_NAME)" minlength="1" spellcheck="true" required>
-                            <label for="JobNameInput">Job name ($GEP_JOB_NAME)</label>
-                        </div>
-                    </div>
-
-                    <div class="col-6">
-                        <div class="form-floating">
-                            <input type="text" id="scriptFileInput" bind:value={pipeline.scriptFile} class="form-control" placeholder="Script file ($GEP_SCRIPT_FILE)" minlength="1" spellcheck="true" required>
-                            <label for="scriptFileInput">Script file ($GEP_SCRIPT_FILE)</label>
+                            <input type="text" id="JobNameInput" bind:value={pipeline.jobName} class="form-control" placeholder="Job name" minlength="1" spellcheck="true" required>
+                            <label for="JobNameInput">Job name</label>
                         </div>
                     </div>
                 </div>
@@ -253,15 +270,45 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="form-floating">
-                            <input type="text" id="nodesInput" bind:value={pipeline.nodes} class="form-control" placeholder="Number of nodes ($GEP_N_NODES)" minlength="1" spellcheck="true" required>
-                            <label for="nodesInput">Number of nodes ($GEP_N_NODES)</label>
+                            <select id="scriptTypeSelect" bind:value={pipeline.scriptType} on:change={() => {pipeline.variables=""; pipeline.checkJobEnvVariables()}} class="form-select">
+                                <option value="bundled" selected>Bundled scripts</option>
+                                <option value="custom">Custom script</option>
+                            </select>
+                            <label for="scriptTypeSelect">Script type</label>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        {#if pipeline.scriptType === "bundled"}
+                            <div class="form-floating">
+                                <select id="bundledScriptSelect" bind:value={pipeline.bundledScriptFile} on:change={pipeline.checkJobEnvVariables} class="form-select">
+                                    {#each bundledScript.scripts as bundledScript}
+                                        <option value="{bundledScript.file}">{bundledScript.name}</option>
+                                    {/each}
+                                </select>
+                                <label for="bundledScriptSelect">Bundled scripts</label>
+                            </div>
+                        {:else}
+                            <div class="form-floating">
+                                <input type="text" id="scriptFileInput" bind:value={pipeline.scriptFile} class="form-control" placeholder="Script file" minlength="1" spellcheck="true" required>
+                                <label for="scriptFileInput">Script file</label>
+                            </div>
+                        {/if}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <input type="text" id="nodesInput" bind:value={pipeline.nodes} class="form-control" placeholder="Number of nodes" minlength="1" spellcheck="true" required>
+                            <label for="nodesInput">Number of nodes</label>
                         </div>
                     </div>
 
                     <div class="col-6">
                         <div class="form-floating">
-                            <input type="text" id="threadsInput" bind:value={pipeline.threads} class="form-control" placeholder="Number of threads ($GEP_N_THREADS)" minlength="1" spellcheck="true" required>
-                            <label for="threadsInput">Number of threads ($GEP_N_THREADS)</label>
+                            <input type="text" id="threadsInput" bind:value={pipeline.threads} class="form-control" placeholder="Number of threads" minlength="1" spellcheck="true" required>
+                            <label for="threadsInput">Number of threads</label>
                         </div>
                     </div>
                 </div>
@@ -269,15 +316,15 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="form-floating">
-                            <input type="text" id="memoryInput" bind:value={pipeline.memory} class="form-control" placeholder="Memory ($GEP_MEMORY)" minlength="1" spellcheck="true" required>
-                            <label for="memoryInput">Memory ($GEP_MEMORY)</label>
+                            <input type="text" id="memoryInput" bind:value={pipeline.memory} class="form-control" placeholder="Memory" minlength="1" spellcheck="true" required>
+                            <label for="memoryInput">Memory</label>
                         </div>
                     </div>
 
                     <div class="col-6">
                         <div class="form-floating">
-                            <input type="text" id="runTimeInput" bind:value={pipeline.runTime} class="form-control" placeholder="Maximum run time ($GEP_MAX_RUNTIME)" minlength="1" spellcheck="true" required>
-                            <label for="runTimeInput">Maximum run time ($GEP_MAX_RUNTIME)</label>
+                            <input type="text" id="runTimeInput" bind:value={pipeline.runTime} class="form-control" placeholder="Maximum run time" minlength="1" spellcheck="true" required>
+                            <label for="runTimeInput">Maximum run time</label>
                         </div>
                     </div>
                 </div>
@@ -285,8 +332,8 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="form-floating">
-                            <input type="text" id="partitionInput" bind:value={pipeline.partition} class="form-control" placeholder="Slurm partition ($GEP_SLURM_PARTITION)" minlength="1" spellcheck="true" required>
-                            <label for="partitionInput">Slurm partition ($GEP_SLURM_PARTITION)</label>
+                            <input type="text" id="partitionInput" bind:value={pipeline.partition} class="form-control" placeholder="Slurm partition" minlength="1" spellcheck="true" required>
+                            <label for="partitionInput">Slurm partition</label>
                         </div>
                     </div>
 
@@ -294,9 +341,9 @@
                         <div class="form-floating">
                             <select id="runModeSelect" bind:value={pipeline.runMode} class="form-select">
                                 <option value="once" selected>Run only once</option>
-                                <option value="forEachSample">Run once for each sample ($GEP_SAMPLE)</option>
+                                <option value="forEachSample">Run once for each sample</option>
                             </select>
-                            <label for="runModeSelect">Execution policy ($GEP_EXEC_POLICY)</label>
+                            <label for="runModeSelect">Execution policy</label>
                         </div>
                     </div>
                 </div>
@@ -307,6 +354,25 @@
                             <input type="text" id="variablesInput" bind:value={pipeline.variables} class="form-control" placeholder="Environment variables (comma separated)" spellcheck="true" required>
                             <label for="partitionInput">Environment variables (comma separated)</label>
                         </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <details>
+                            <summary><strong>Built-in environment variables</strong></summary>
+                            The following environment variables are automatically exported and can be used inside custom scripts:
+                            <br><code>$GEP_SAMPLE</code> - (<strong>execution policy: "run once for each sample"</strong>) Label of the sample being analysed
+                            <br><code>$GEP_WD</code> - Working directory
+                            <br><code>$GEP_JOB_NAME</code> - Job name
+                            <br><code>$GEP_SCRIPT_FILE</code> - Script file (path for custom scripts, file name for bundled scripts)
+                            <br><code>$GEP_N_NODES</code> - Number of nodes
+                            <br><code>$GEP_N_THREADS</code> - Number of threads
+                            <br><code>$GEP_MEMORY</code> - Memory (RAM)
+                            <br><code>$GEP_MAX_RUNTIME</code> - Maximum run time
+                            <br><code>$GEP_SLURM_PARTITION</code> - Slurm partition
+                            <br><code>$GEP_EXEC_POLICY</code> - Execution policy (either "once" or "forEachSample")
+                        </details>
                     </div>
                 </div>
 
