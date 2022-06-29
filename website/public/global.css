@@ -138,6 +138,13 @@ label {
     background-color: var(--theme-color) !important;
 }
 
+.section-caption .btn-secondary {
+    font-size: 0.8rem;
+    opacity: 80%;
+    margin-top: 1rem;
+    padding: 0.2rem 0.4rem 0.2rem 0.4rem;
+}
+
 .text-col {
     font-size: 1.1rem;
 }
@@ -174,5 +181,20 @@ details {
 }
 
 textarea {
-    height: 6rem !important;
+    min-height: 6rem !important;
+}
+
+.sourceCodeSymbol {
+    color: var(--theme-color) !important;
+    text-decoration: none !important;
+}
+
+.sourceCodeSymbol:hover {
+    color: var(--theme-color) !important;
+    text-decoration: none !important;
+}
+
+.sourceCodeSymbol:visited {
+    color: var(--theme-color) !important;
+    text-decoration: none !important;
 }

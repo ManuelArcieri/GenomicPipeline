@@ -2,6 +2,8 @@
     import * as pipeline from "./pipeline";
     import {jobByUUID, jobsByStep} from "./stores";
     import * as bundledScript from "./bundledScripts";
+
+    $: sourceLink = "https://github.com/ManuelArcieri/GenomicPipeline/blob/main/jobs/" + pipeline.bundledScriptFile;
 </script>
 
 
@@ -13,7 +15,8 @@
 
     <div class="container-fluid">
         <div class="section-caption">
-            <span>Runtime environment</span>
+            <span>Runtime environment</span><br>
+            <button type="button" on:click={pipeline.loadExample} class="btn btn-secondary">Load an example</button>
         </div>
 
         <div class="row">
@@ -278,8 +281,9 @@
                         </div>
                     </div>
 
-                    <div class="col-6">
-                        {#if pipeline.scriptType === "bundled"}
+                    {#if pipeline.scriptType === "bundled"}
+
+                        <div class="col-5">
                             <div class="form-floating">
                                 <select id="bundledScriptSelect" bind:value={pipeline.bundledScriptFile} on:change={pipeline.checkJobEnvVariables} class="form-select">
                                     {#each bundledScript.scripts as bundledScript}
@@ -288,13 +292,25 @@
                                 </select>
                                 <label for="bundledScriptSelect">Bundled scripts</label>
                             </div>
-                        {:else}
+                        </div>
+
+                        <div class="col-1">
+                            <a class="sourceCodeSymbol" href={sourceLink} target="_blank" rel="noopener">
+                                <span class="material-symbols-rounded">open_in_new</span>
+                            </a>
+                        </div>
+
+                    {:else}
+
+                        <div class="col-6">
                             <div class="form-floating">
                                 <input type="text" id="scriptFileInput" bind:value={pipeline.scriptFile} class="form-control" placeholder="Script file" minlength="1" spellcheck="true" required>
                                 <label for="scriptFileInput">Script file</label>
                             </div>
-                        {/if}
-                    </div>
+                        </div>
+
+                    {/if}
+
                 </div>
 
                 <div class="row">

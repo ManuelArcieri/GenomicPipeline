@@ -269,6 +269,7 @@ export function generatePipeline()
     const splitSamples = samples.trim().split("\n");
 
     let jobSections = [];
+    let parallelJobsUUIDs = {};
     for (let stepList of jobsByStep)
         for (let job of stepList[1]) {
             let table = {
@@ -295,16 +296,58 @@ export function generatePipeline()
             if (job.dependencies.length > 0)
                 table["previous_steps_uuid"] = job.dependencies.join(",");
 
-            if (job.runMode === "forEachSample")
+            if (job.runMode === "forEachSample") {
                 for (let sample of splitSamples) {
                     let newTable = {...table};
+                    const newUUID = self.crypto.randomUUID();
+                    newTable["uuid"] = newUUID;
                     newTable["name"] = newTable["name"].replace("$GEP_SAMPLE", sample);
                     newTable["script_file"] = newTable["script_file"].replace("$GEP_SAMPLE", sample);
                     newTable["environment_variables"] = `GEP_SAMPLE="${sample}",${newTable["environment_variables"]}`;
+
+                    let realDependencies = [];
+                    if (job.dependencies.length > 0) {
+                        for (let parentUUID of job.dependencies) {
+                            const parentMap = parallelJobsUUIDs[parentUUID];
+                            if (parentMap !== undefined)
+                                realDependencies.push(parentMap[sample]);
+                            else
+                                realDependencies.push(parentUUID);
+                        }
+                    }
+
+                    if (realDependencies.length > 0)
+                        newTable["previous_steps_uuid"] = realDependencies.join(",");
+
+                    const previousJobs = parallelJobsUUIDs[job.UUID];
+                    if (previousJobs !== undefined)
+                        parallelJobsUUIDs[job.UUID][sample] = newUUID;
+                    else {
+                        const newObj = {};
+                        newObj[sample] = newUUID;
+                        parallelJobsUUIDs[job.UUID] = newObj;
+                    }
+
                     jobSections.push(Section(newTable));
                 }
-            else
+            } else {
+                let realDependencies = [];
+                if (job.dependencies.length > 0) {
+                    for (let parentUUID of job.dependencies) {
+                        const parentMap = parallelJobsUUIDs[parentUUID];
+                        if (parentMap !== undefined)
+                            for (let value of Object.values(parentMap))
+                                realDependencies.push(value);
+                        else
+                            realDependencies.push(parentUUID);
+                    }
+                }
+
+                if (realDependencies.length > 0)
+                    table["previous_steps_uuid"] = realDependencies.join(",");
+
                 jobSections.push(Section(table));
+            }
         }
 
     let toml = stringify({
@@ -342,4 +385,225 @@ export function checkJobEnvVariables()
             return;
         }
     }
+}
+
+export function loadExample()
+{
+    if (self?.crypto?.randomUUID === undefined) {
+        alert("Crypto module unavailable, cannot proceed");
+        console.error("Crypto module unavailable, cannot proceed");
+        return;
+    }
+
+    stores.jobByUUID.set({});
+    stores.jobsByStep.set([]);
+
+    pipelineName = "Sample pipeline";
+    document.getElementById("pipelineNameInput").value = "Sample pipeline";
+    accountName = "your-account";
+    document.getElementById("accountInput").value = "your-account";
+    workingDirectory = "$SCRATCH/sample";
+    document.getElementById("workingDirectoryInput").value = "$SCRATCH/sample";
+    logsDirectory = "$SCRATCH/sample/logs";
+    document.getElementById("logsDirectoryInput").value = "$SCRATCH/sample/logs";
+    samples = "SRR8615264\nSRR8615268\nSRR8615270\nSRR8615232\nSRR8615233\nSRR8615238";
+    document.getElementById("samplesInput").value = "SRR8615264\nSRR8615268\nSRR8615270\nSRR8615232\nSRR8615233\nSRR8615238";
+
+    const jobByUUID = {};
+
+    const prefetchUUID = self.crypto.randomUUID();
+    jobByUUID[prefetchUUID] = {
+        UUID: prefetchUUID,
+        step: -1,
+        jobName: "Prefetch $GEP_SAMPLE",
+        scriptFile: "sra-prefetch.sh",
+        nodes: 1,
+        threads: 1,
+        memory: "8GB",
+        runTime: "4:00:00",
+        partition: "g100_all_serial",
+        variables: "",
+        dependencies: [],
+        runMode: "forEachSample"
+    };
+
+    const fastqDumpUUID = self.crypto.randomUUID();
+    jobByUUID[fastqDumpUUID] = {
+        UUID: fastqDumpUUID,
+        step: -1,
+        jobName: "fastq-dump $GEP_SAMPLE",
+        scriptFile: "fastq-dump-PE.sh",
+        nodes: 1,
+        threads: 4,
+        memory: "8GB",
+        runTime: "4:00:00",
+        partition: "g100_all_serial",
+        variables: "",
+        dependencies: [prefetchUUID],
+        runMode: "forEachSample"
+    };
+
+    const fastqc1UUID = self.crypto.randomUUID();
+    jobByUUID[fastqc1UUID] = {
+        UUID: fastqc1UUID,
+        step: -1,
+        jobName: "FastQC $GEP_SAMPLE (1)",
+        scriptFile: "fastqc.sh",
+        nodes: 1,
+        threads: 6,
+        memory: "32GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "FASTQ_FILE=\"$GEP_WD/FASTQ/$GEP_SAMPLE\"_1.fastq",
+        dependencies: [fastqDumpUUID],
+        runMode: "forEachSample"
+    };
+
+    const fastqc2UUID = self.crypto.randomUUID();
+    jobByUUID[fastqc2UUID] = {
+        UUID: fastqc2UUID,
+        step: -1,
+        jobName: "FastQC $GEP_SAMPLE (2)",
+        scriptFile: "fastqc.sh",
+        nodes: 1,
+        threads: 6,
+        memory: "32GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "FASTQ_FILE=\"$GEP_WD/FASTQ/$GEP_SAMPLE\"_2.fastq",
+        dependencies: [fastqDumpUUID],
+        runMode: "forEachSample"
+    };
+
+    const trimUUID = self.crypto.randomUUID();
+    jobByUUID[trimUUID] = {
+        UUID: trimUUID,
+        step: -1,
+        jobName: "Trim $GEP_SAMPLE",
+        scriptFile: "trimmomatic-PE.sh",
+        nodes: 1,
+        threads: 36,
+        memory: "128GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "",
+        dependencies: [fastqDumpUUID],
+        runMode: "forEachSample"
+    };
+
+    const fastqc3UUID = self.crypto.randomUUID();
+    jobByUUID[fastqc3UUID] = {
+        UUID: fastqc3UUID,
+        step: -1,
+        jobName: "FastQC trimmed $GEP_SAMPLE (paired, 1)",
+        scriptFile: "fastqc.sh",
+        nodes: 1,
+        threads: 6,
+        memory: "32GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "FASTQ_FILE=\"$GEP_WD/trimmed/$GEP_SAMPLE\"_1.trimmed.paired.fastq",
+        dependencies: [trimUUID],
+        runMode: "forEachSample"
+    };
+
+    const fastqc4UUID = self.crypto.randomUUID();
+    jobByUUID[fastqc4UUID] = {
+        UUID: fastqc4UUID,
+        step: -1,
+        jobName: "FastQC trimmed $GEP_SAMPLE (paired, 2)",
+        scriptFile: "fastqc.sh",
+        nodes: 1,
+        threads: 6,
+        memory: "32GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "FASTQ_FILE=\"$GEP_WD/trimmed/$GEP_SAMPLE\"_2.trimmed.paired.fastq",
+        dependencies: [trimUUID],
+        runMode: "forEachSample"
+    };
+
+    const fastqc5UUID = self.crypto.randomUUID();
+    jobByUUID[fastqc5UUID] = {
+        UUID: fastqc5UUID,
+        step: -1,
+        jobName: "FastQC trimmed $GEP_SAMPLE (unpaired, 1)",
+        scriptFile: "fastqc.sh",
+        nodes: 1,
+        threads: 6,
+        memory: "32GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "FASTQ_FILE=\"$GEP_WD/trimmed/$GEP_SAMPLE\"_1.trimmed.unpaired.fastq",
+        dependencies: [trimUUID],
+        runMode: "forEachSample"
+    };
+
+    const fastqc6UUID = self.crypto.randomUUID();
+    jobByUUID[fastqc6UUID] = {
+        UUID: fastqc6UUID,
+        step: -1,
+        jobName: "FastQC trimmed $GEP_SAMPLE (unpaired, 2)",
+        scriptFile: "fastqc.sh",
+        nodes: 1,
+        threads: 6,
+        memory: "32GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "FASTQ_FILE=\"$GEP_WD/trimmed/$GEP_SAMPLE\"_2.trimmed.unpaired.fastq",
+        dependencies: [trimUUID],
+        runMode: "forEachSample"
+    };
+
+    const mapUUID = self.crypto.randomUUID();
+    jobByUUID[mapUUID] = {
+        UUID: mapUUID,
+        step: -1,
+        jobName: "Mapping $GEP_SAMPLE",
+        scriptFile: "hisat2-mapping-PE.sh",
+        nodes: 1,
+        threads: 36,
+        memory: "256GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "",
+        dependencies: [trimUUID],
+        runMode: "forEachSample"
+    };
+
+    const sortUUID = self.crypto.randomUUID();
+    jobByUUID[sortUUID] = {
+        UUID: sortUUID,
+        step: -1,
+        jobName: "Sorting $GEP_SAMPLE",
+        scriptFile: "samtools-sort.sh",
+        nodes: 1,
+        threads: 36,
+        memory: "128GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "",
+        dependencies: [mapUUID],
+        runMode: "forEachSample"
+    };
+
+    const stringTieUUID = self.crypto.randomUUID();
+    jobByUUID[stringTieUUID] = {
+        UUID: stringTieUUID,
+        step: -1,
+        jobName: "StringTie $GEP_SAMPLE",
+        scriptFile: "stringtie.sh",
+        nodes: 1,
+        threads: 36,
+        memory: "256GB",
+        runTime: "24:00:00",
+        partition: "g100_usr_prod",
+        variables: "",
+        dependencies: [sortUUID],
+        runMode: "forEachSample"
+    };
+
+    stores.jobByUUID.set(jobByUUID);
+    updateJobsByStep();
+    collapseAllAccordions();
 }
