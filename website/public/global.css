@@ -7,6 +7,8 @@
     --theme-color-light: #666AD1;
     --theme-color-dark: #001970;
     --error-color: #C62828;
+    --error-color-transparent: rgba(198, 40, 40, 0.25);
+    --error-color-light: #F44336;
 }
 
 html {
@@ -197,4 +199,30 @@ textarea {
 .sourceCodeSymbol:visited {
     color: var(--theme-color) !important;
     text-decoration: none !important;
+}
+
+.btn-danger:active:focus {
+    border-color: var(--error-color-light) !important;
+    box-shadow: 0 0 0 0.25rem var(--error-color-transparent) !important;
+}
+
+.btn-danger:active {
+    background-color: var(--error-color-light) !important;
+}
+
+.btn-danger:focus {
+    border-color: var(--error-color-light) !important;
+    background-color: var(--error-color-light) !important;
+    box-shadow: 0 0 0 0.25rem var(--error-color-transparent) !important;
+}
+
+.btn-danger:hover {
+    border-color: var(--error-color-light) !important;
+    background-color: var(--error-color-light) !important;
+    box-shadow: 0 0 0 0.25rem var(--error-color-transparent) !important;
+}
+
+.btn-danger {
+    border-color: var(--error-color) !important;
+    background-color: var(--error-color) !important;
 }
