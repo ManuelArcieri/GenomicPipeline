@@ -5,7 +5,6 @@ zip_file="$HOME"/gep.zip
 gep_folder="$HOME"/GenomicPipeline
 gep_folder_extracted="$gep_folder"/GenomicPipeline-main
 
-sleep 3
 echo ">>> Fetching repository from GitHub..."
 wget --quiet --tries 5 --timeout 10 --output-document "$zip_file" https://codeload.github.com/ManuelArcieri/GenomicPipeline/zip/refs/heads/main
 
