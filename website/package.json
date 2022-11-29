@@ -18,7 +18,7 @@
         "svelte": "^3.53.1"
     },
     "dependencies": {
-        "@ltd/j-toml": "^1.35.2",
+        "@ltd/j-toml": "^1.35.3",
         "sirv-cli": "^2.0.0"
     }
 }
