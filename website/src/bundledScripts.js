@@ -52,6 +52,11 @@ export const scripts = [
         envVariables: ""
     },
     {
+        file: "trimmomatic-PE-g.sh",
+        name: "Trimmomatic (paired-end, generic file extension)",
+        envVariables: "FASTQ_EXT_1=_R1_001.fastq.gz,FASTQ_EXT_2=_R2_001.fastq.gz"
+    },
+    {
         file: "trimmomatic-SE.sh",
         name: "Trimmomatic (single-end)",
         envVariables: ""
