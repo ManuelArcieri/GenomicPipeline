@@ -23,12 +23,17 @@ export const scripts = [
     },
     {
         file: "hisat2-mapping-PE.sh",
-        name: "HISAT2 (paired-end)",
+        name: "HISAT2 (paired-end, Human)",
+        envVariables: ""
+    },
+    {
+        file: "hisat2-mapping-PE-mm10.sh",
+        name: "HISAT2 (paired-end, Mus musculus)",
         envVariables: ""
     },
     {
         file: "hisat2-mapping-SE.sh",
-        name: "HISAT2 (single-end)",
+        name: "HISAT2 (single-end, Human)",
         envVariables: ""
     },
     {
@@ -43,7 +48,12 @@ export const scripts = [
     },
     {
         file: "stringtie.sh",
-        name: "StringTie",
+        name: "StringTie (Human)",
+        envVariables: ""
+    },
+    {
+        file: "stringtie-mm10.sh",
+        name: "StringTie (Mus musculus)",
         envVariables: ""
     },
     {
