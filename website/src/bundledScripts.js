@@ -27,6 +27,11 @@ export const scripts = [
         envVariables: ""
     },
     {
+        file: "hisat2-mapping-PE-custom.sh",
+        name: "HISAT2 (paired-end, custom genome)",
+        envVariables: "GENOME_INDEX=some/directory"
+    },
+    {
         file: "hisat2-mapping-PE-mm10.sh",
         name: "HISAT2 (paired-end, Mus musculus)",
         envVariables: ""
