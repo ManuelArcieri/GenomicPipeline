@@ -24,5 +24,5 @@ vdb-config -s /repository/user/cache-disabled=false
 vdb-config -s /repository/user/main/public/cache-enabled=true
 vdb-config -s /repository/user/main/public/root="$SCRATCH/ncbi"
 
-prefetch "$GEP_SAMPLE" --output-file "$SRA_FILE"
+prefetch --max-size 200G --output-file "$SRA_FILE" "$GEP_SAMPLE"
 echo "$GEP_SAMPLE downloaded successfully"
